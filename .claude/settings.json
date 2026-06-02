@@ -24,7 +24,11 @@
       "Bash(python -c ' *)",
       "mcp__stitch__list_screens",
       "mcp__stitch__get_screen",
-      "WebFetch(domain:contribution.usercontent.google.com)"
+      "WebFetch(domain:contribution.usercontent.google.com)",
+      "Bash(npx expo *)",
+      "Bash(npx tsc *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   },
   "enabledPlugins": {

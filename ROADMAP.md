@@ -10,7 +10,7 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 > Tout le reste dépend de ce bloc. A faire en premier, dans l'ordre.
 
 - [x] [#3](https://github.com/jack0237/CineMatch/issues/3) — Variables d'environnement (`.env` + `.env.example`)
-- [ ] [#1](https://github.com/jack0237/CineMatch/issues/1) — Restructurer l'architecture du projet (`services/`, `utils/`, `hooks/`)
+- [x] [#1](https://github.com/jack0237/CineMatch/issues/1) — Restructurer l'architecture du projet (`services/`, `utils/`, `hooks/`)
 - [ ] [#31](https://github.com/jack0237/CineMatch/issues/31) — Design system dark/cinématique dans `theme.ts`
 - [ ] [#2](https://github.com/jack0237/CineMatch/issues/2) — Configurer Supabase (tables `profiles` + `swipe_history` + RLS)
 
@@ -100,7 +100,7 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 
 | Bloc          | Issues | Faites | Restantes |
 | ------------- | ------ | ------ | --------- |
-| Fondations    | 4      | 1      | 3         |
+| Fondations    | 4      | 2      | 2         |
 | Auth          | 4      | 0      | 4         |
 | API/Nav       | 4      | 0      | 4         |
 | Swipe         | 5      | 0      | 5         |
@@ -109,4 +109,4 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 | UX Polish     | 6      | 0      | 6         |
 | Bonus         | 3      | 0      | 3         |
 | Livraison     | 4      | 0      | 4         |
-| **Total**     | **38** | **1**  | **37**    |
+| **Total**     | **38** | **2**  | **36**    |

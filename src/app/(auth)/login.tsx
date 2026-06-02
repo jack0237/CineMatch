@@ -1,0 +1,22 @@
+import { Link } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+export default function LoginScreen() {
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>CineMatch</Text>
+      <Text style={styles.subtitle}>Login — issue #5</Text>
+      <Link href="/(auth)/register" style={styles.link}>
+        Pas encore de compte ? S'inscrire
+      </Link>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#0D0D0D', alignItems: 'center', justifyContent: 'center', gap: 12 },
+  title: { color: '#FFFFFF', fontSize: 32, fontWeight: '700' },
+  subtitle: { color: '#A0A0A0', fontSize: 14 },
+  link: { color: '#E50914', fontSize: 14, marginTop: 8 },
+});
