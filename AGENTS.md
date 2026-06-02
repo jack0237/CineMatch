@@ -54,9 +54,45 @@ npm run reset-project
 
 Copy `.env.example` to `.env` and fill in the required values before starting the app. Never commit `.env`.
 
+| Variable          | Description                                                                   |
+| ----------------- | ----------------------------------------------------------------------------- |
+| `STITCH_API_KEY`  | Google Stitch API key (stored in `.claude/settings.local.json`, never commit) |
+
+## MCP Servers
+
+Two MCP servers are configured for this project:
+
+### Google Stitch (`stitch`)
+
+AI UI design tool — generates screens, design systems, and UI components from text prompts.
+
+- Configured in `~/.claude.json` (user-level, API key in header)
+- Key tools: `mcp__stitch__list_projects`, `mcp__stitch__create_project`, `mcp__stitch__generate_screen_from_text`, `mcp__stitch__get_screen`, `mcp__stitch__list_screens`
+- Active Stitch project: **CineMatch UI Kit** (`projects/4189922242168599667`)
+
+### Supabase (`supabase`)
+
+Backend-as-a-service — database, auth, storage, edge functions.
+
+- Configured in `.mcp.json` (project-level), authenticated via OAuth
+- Project ref: `tqoajxhwapcttqfbjybg`
+- Key tools: `mcp__supabase__execute_sql`, `mcp__supabase__apply_migration`, `mcp__supabase__list_tables`, `mcp__supabase__get_logs`
+- Always run `list_tables` before any schema change
+- Use `get_logs` + `get_advisors` before debugging
+
+## Agent Skills
+
+Two Supabase agent skills are installed in `.agents/skills/` and more other skills relative to this react native project:
+
+- `supabase` — Supabase development patterns and client integration
+- `supabase-postgres-best-practices` — Postgres query and schema optimization
+
+Use the `supabase` skill for any task touching the database, auth, or storage.
+
 ## Before Writing Code
 
 1. Check the Expo v56 docs for any API you use.
 2. Follow the existing theme/token system — no inline color literals.
 3. Add platform-specific files (`.web.tsx`) when behaviour must differ between native and web.
 4. Keep components in `src/components/`, screens in `src/app/`.
+5. For any Supabase schema change: check existing tables first with `mcp__supabase__list_tables`.

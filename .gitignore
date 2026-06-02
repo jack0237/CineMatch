@@ -31,14 +31,16 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
+
+# Claude Code local settings (contains secrets)
+.claude/settings.local.json
+.mcp.json
 
 # typescript
 *.tsbuildinfo
 
-example
-
 # generated native folders
 /ios
 /android
-.env

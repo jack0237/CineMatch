@@ -1,56 +1,148 @@
-# Welcome to your Expo app 👋
+# CineMatch
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> L'app qui met fin aux debats interminables pour choisir un film.
 
-## Get started
+Application mobile (iOS, Android) - Evaluation React Native M1, SUP de Vinci. Sujet 1 — CineMatch.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Team
 
-2. Start the app
+| Name          | Role                          |
+| ------------- | ----------------------------- |
+| Wilfreid Jack | Full-stack development (solo) |
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## Features
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Required
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- [x] Auth via Supabase (sign up, sign in, sign out, password reset)
+- [ ] Swipe screen — poster, title, year, TMDB rating — swipe left (dislike) / right (like)
+- [ ] Matches screen — liked movies sorted by TMDB rating, saved in Supabase
+- [ ] Movie detail — synopsis, runtime, genres, rating, top 5 cast, YouTube trailer link
+- [ ] Search — search bar with debounce
+- [ ] History — all swiped movies (liked and disliked) stored in Supabase
 
-## Get a fresh project
+### Bonus
 
-When you're ready, run:
+- [ ] Filter system (genre, TMDB score, era) via bottom sheet
+- [ ] Smooth card rotation animation during swipe (Reanimated)
+
+---
+
+## Tech stack
+
+| Need                | Tool                                          |
+| ------------------- | --------------------------------------------- |
+| Framework           | Expo SDK 56 + React Native 0.85               |
+| Language            | TypeScript                                    |
+| Navigation          | Expo Router v4 (file-based)                   |
+| Database + Auth     | Supabase                                      |
+| Movie API           | The Movie Database (TMDB)                     |
+| Gestures            | react-native-gesture-handler ~2.31            |
+| Animations          | react-native-reanimated 4.3                   |
+| Images              | expo-image                                    |
+| External links      | expo-web-browser                              |
+| Styling             | StyleSheet + design tokens (constants/theme)  |
+
+---
+
+## Installation
+
+### 1. Clone the repo
 
 ```bash
-npm run reset-project
+git clone https://github.com/jack0237/CineMatch.git
+cd CineMatch
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Set up environment variables
 
-### Other setup steps
+```bash
+cp .env.example .env
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Open `.env` and fill in the values:
 
-## Learn more
+```env
+EXPO_PUBLIC_SUPABASE_URL=...
+EXPO_PUBLIC_SUPABASE_ANON_KEY=...
+EXPO_PUBLIC_TMDB_API_KEY=...
+EXPO_PUBLIC_TMDB_BASE_URL=https://api.themoviedb.org/3
+EXPO_PUBLIC_TMDB_IMAGE_BASE_URL=https://image.tmdb.org/t/p
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Get a TMDB API key
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Create an account at [developers.themoviedb.org](https://developers.themoviedb.org)
+2. Go to **Settings → API**
+3. Copy the **API key (v3 auth)**
+4. Paste it in `.env` as `EXPO_PUBLIC_TMDB_API_KEY`
 
-## Join the community
+### 4. Get Supabase keys
 
-Join our community of developers creating universal apps.
+1. Create a project at [supabase.com](https://supabase.com)
+2. Go to **Project Settings → API**
+3. Copy **Project URL** → `EXPO_PUBLIC_SUPABASE_URL`
+4. Copy **anon public** key → `EXPO_PUBLIC_SUPABASE_ANON_KEY`
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 5. Start the app
+
+```bash
+npx expo start           # Expo Dev Tools
+npx expo start --ios     # iOS simulator
+npx expo start --android # Android emulator
+```
+
+Scan the QR code with **Expo Go** on your phone.
+
+---
+
+## Project structure
+
+```text
+src/
+  app/
+    (auth)/            # Unauthenticated screens (login, register, forgot-password)
+    (tabs)/            # Tab navigator (swipe, matches, search, history, profile)
+    movie/[id].tsx     # Movie detail screen (Stack)
+    _layout.tsx        # Root layout + auth guard
+  components/          # Reusable components (SwipeCard, MovieCard, Button, Input...)
+    skeletons/         # Skeleton loading components
+  constants/
+    theme.ts           # Design tokens (Colors, Fonts, Spacing, Radius)
+  hooks/               # Custom hooks (useAuth, useMovies, useSwipe)
+  services/
+    tmdb.ts            # All TMDB API calls
+    supabase.ts        # Supabase client
+    swipe.ts           # Swipe persistence logic
+  types/
+    tmdb.ts            # TypeScript interfaces (Movie, Cast, Video...)
+  utils/               # Helpers (formatters, date utils)
+assets/                # Images and icons
+```
+
+---
+
+## Environment variables
+
+| Variable                          | Description          | Where to get it           |
+| --------------------------------- | -------------------- | ------------------------- |
+| `EXPO_PUBLIC_SUPABASE_URL`        | Supabase project URL | Project Settings → API    |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY`   | Supabase anon key    | Project Settings → API    |
+| `EXPO_PUBLIC_TMDB_API_KEY`        | TMDB v3 API key      | developers.themoviedb.org |
+| `EXPO_PUBLIC_TMDB_BASE_URL`       | TMDB base URL        | See `.env.example`        |
+| `EXPO_PUBLIC_TMDB_IMAGE_BASE_URL` | TMDB image base URL  | See `.env.example`        |
+
+> Never commit the `.env` file. It is listed in `.gitignore`.
+
+---
+
+## Project board
+
+GitHub Projects: [github.com/users/jack0237/projects/7](https://github.com/users/jack0237/projects/7)
+
+38 issues covering all features, organized by sprint over 8 weeks.
