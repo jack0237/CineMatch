@@ -24,9 +24,15 @@ import { SwipeCard } from '@/components/SwipeCard';
 import { FontSize, Radius, Spacing } from '@/constants/theme';
 import { useColors } from '@/hooks/use-theme';
 import { useAuth } from '@/hooks/useAuth';
-import { getPopularMovies } from '@/services/tmdb';
+import { discoverMovies, getPopularMovies } from '@/services/tmdb';
 import { getSwipedMovieIds, saveSwipe } from '@/services/swipe';
 import type { Movie } from '@/types/tmdb';
+import {
+  FilterSheet,
+  ERA_DATE_RANGES,
+  INITIAL_FILTER,
+  type FilterState,
+} from '@/components/FilterSheet';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.35;
@@ -40,9 +46,18 @@ export default function SwipeScreen() {
   const [deck, setDeck] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filterVisible, setFilterVisible] = useState(false);
   const page = useRef(1);
   const swipedIds = useRef<Set<number>>(new Set());
   const isFetching = useRef(false);
+  // Use a ref so loadMovies (useCallback with empty deps) always reads the current filters
+  const filtersRef = useRef<FilterState>(INITIAL_FILTER);
+  const [appliedFilters, setAppliedFiltersState] = useState<FilterState>(INITIAL_FILTER);
+
+  const hasActiveFilters =
+    appliedFilters.genres.length > 0 ||
+    appliedFilters.minScore > 0 ||
+    appliedFilters.era !== null;
 
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -87,7 +102,17 @@ export default function SwipeScreen() {
     if (isFetching.current) return;
     isFetching.current = true;
     try {
-      const { results } = await getPopularMovies(page.current);
+      const f = filtersRef.current;
+      const eraRange = f.era ? ERA_DATE_RANGES[f.era] : {};
+      const hasFilters = f.genres.length > 0 || f.minScore > 0 || f.era !== null;
+      const { results } = hasFilters
+        ? await discoverMovies({
+            page: page.current,
+            ...(f.genres.length > 0 ? { with_genres: f.genres.join(',') } : {}),
+            ...(f.minScore > 0 ? { 'vote_average.gte': String(f.minScore) } : {}),
+            ...eraRange,
+          })
+        : await getPopularMovies(page.current);
       page.current += 1;
       const fresh = results.filter((m) => !swipedIds.current.has(m.id));
       setDeck((prev) => [...prev, ...fresh]);
@@ -203,7 +228,12 @@ export default function SwipeScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: C.primary }]}>CineMatch</Text>
-        <Ionicons name="options-outline" size={24} color={C.textPrimary} />
+        <Pressable onPress={() => setFilterVisible(true)} hitSlop={8} style={{ position: 'relative' }}>
+          <Ionicons name="options-outline" size={24} color={C.primary} />
+          {hasActiveFilters && (
+            <View style={[styles.filterDot, { backgroundColor: C.like }]} />
+          )}
+        </Pressable>
       </View>
 
       {/* Card stack */}
@@ -223,6 +253,20 @@ export default function SwipeScreen() {
             );
           })}
       </View>
+
+      {/* Filter sheet */}
+      <FilterSheet
+        visible={filterVisible}
+        initialState={appliedFilters}
+        onClose={() => setFilterVisible(false)}
+        onApply={(state) => {
+          filtersRef.current = state;
+          setAppliedFiltersState(state);
+          page.current = 1;
+          setDeck([]);
+          loadMovies();
+        }}
+      />
 
       {/* Action buttons */}
       <View style={styles.actions}>
@@ -280,6 +324,14 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xl,
     fontWeight: '700',
     letterSpacing: 0.3,
+  },
+  filterDot: {
+    position: 'absolute',
+    top: 0,
+    right: -1,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
 
   deckContainer: {
