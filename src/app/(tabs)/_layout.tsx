@@ -1,15 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import type { ColorValue } from 'react-native';
-import { Cinema } from '@/constants/theme';
-
-type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
-
-function icon(base: IoniconName, active: IoniconName) {
-  return ({ color, focused }: { color: ColorValue; focused: boolean }) => (
-    <Ionicons name={focused ? active : base} size={24} color={color as string} />
-  );
-}
+import { Cinema, Fonts } from '@/constants/theme';
+import { tabIcon } from '@/components/ui/TabIcon';
 
 export default function TabsLayout() {
   return (
@@ -17,40 +8,59 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Cinema.tabBar,
-          borderTopColor: Cinema.border,
+          backgroundColor: 'rgba(19, 19, 19, 0.92)',
+          borderTopColor: 'rgba(255, 255, 255, 0.08)',
           borderTopWidth: 1,
-          height: 64,
-          paddingBottom: 8,
+          height: 68,
+          paddingBottom: 10,
+          paddingTop: 6,
         },
-        tabBarActiveTintColor: Cinema.tabBarActive,
-        tabBarInactiveTintColor: Cinema.tabBarInactive,
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
+        tabBarActiveTintColor: Cinema.primary,
+        tabBarInactiveTintColor: Cinema.textDisabled,
+        tabBarLabelStyle: {
+          fontFamily: Fonts.semibold,
+          fontSize: 10,
+          letterSpacing: 0.4,
+          marginTop: 2,
+        },
       }}>
-      {/* 1 — Swipe (clapperboard icon — matches Stitch) */}
+
       <Tabs.Screen
         name="swipe"
-        options={{ title: 'Swipe', tabBarIcon: icon('film-outline', 'film') }}
+        options={{
+          title: 'Swipe',
+          tabBarIcon: tabIcon({ name: 'cards-outline', activeName: 'cards' }),
+        }}
       />
-      {/* 2 — Matches (heart — matches Stitch) */}
+
       <Tabs.Screen
         name="matches"
-        options={{ title: 'Matches', tabBarIcon: icon('heart-outline', 'heart') }}
+        options={{
+          title: 'Matches',
+          tabBarIcon: tabIcon({ name: 'heart-outline', activeName: 'heart' }),
+        }}
       />
-      {/* 3 — Search (search icon — for evaluation) */}
+
       <Tabs.Screen
         name="search"
-        options={{ title: 'Recherche', tabBarIcon: icon('search-outline', 'search') }}
+        options={{
+          title: 'Recherche',
+          tabBarIcon: tabIcon({ name: 'magnify', activeName: 'magnify' }),
+        }}
       />
-      {/* 4 — History (time/grid icon — matches Stitch 3rd tab) */}
-      <Tabs.Screen
-        name="history"
-        options={{ title: 'Historique', tabBarIcon: icon('grid-outline', 'grid') }}
-      />
-      {/* 5 — Profile (person — matches Stitch) */}
+
       <Tabs.Screen
         name="profile"
-        options={{ title: 'Profil', tabBarIcon: icon('person-outline', 'person') }}
+        options={{
+          title: 'Profil',
+          tabBarIcon: tabIcon({ name: 'account-outline', activeName: 'account' }),
+        }}
+      />
+
+      {/* History screen kept as route but hidden from the tab bar */}
+      <Tabs.Screen
+        name="history"
+        options={{ href: null }}
       />
     </Tabs>
   );

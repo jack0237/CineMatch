@@ -28,7 +28,24 @@
       "Bash(npx expo *)",
       "Bash(npx tsc *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "WebFetch(domain:lh3.googleusercontent.com)",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__get_advisors",
+      "mcp__supabase__generate_typescript_types",
+      "Bash(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\Wilfreid\\\\Documents\\\\GitHub\\\\CineMatch\\\\supabase\\\\migrations\")",
+      "Bash(Out-Null)",
+      "Bash(git commit -m 'closes #8 closes #32 closes #10 closes #11 closes #12 closes #13 closes #34 - swipe screen + profile + tab layout *)",
+      "mcp__supabase__get_project_url",
+      "mcp__supabase__get_publishable_keys",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d, indent=2\\)\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); keys=list\\(d.get\\('env',{}\\).keys\\(\\)\\); print\\(keys\\)\")",
+      "Bash(git commit -m 'fix: validate env vars at startup with clear error messages *)",
+      "Bash(node -e \"const p = require\\('./package.json'\\); const deps = {...p.dependencies, ...p.devDependencies}; console.log\\('expo-font:', deps['expo-font'] || 'ABSENT'\\); console.log\\('@expo-google-fonts/sora:', deps['@expo-google-fonts/sora'] || 'ABSENT'\\);\")",
+      "Bash(node -e \"const p = require\\('./package.json'\\); const deps = {...p.dependencies, ...p.devDependencies}; ['expo-font','@expo-google-fonts/sora','expo-linear-gradient','@expo/vector-icons'].forEach\\(k => console.log\\(k + ':', deps[k] || 'ABSENT'\\)\\);\")",
+      "Bash(grep -v \"//\\\\|*\")",
+      "Bash(dir .env*)"
     ]
   },
   "enabledPlugins": {
