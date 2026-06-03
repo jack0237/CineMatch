@@ -125,14 +125,19 @@ export default function HistoryScreen() {
 
   const [allSwipes, setAllSwipes] = useState<SwipeHistory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);   // never spin forever if somehow user is null
+      return;
+    }
     setLoading(true);
+    setError('');
     getAllSwipes(user.id)
       .then(setAllSwipes)
-      .catch(() => {})
+      .catch(() => setError('Impossible de charger l\'historique. Vérifie ta connexion.'))
       .finally(() => setLoading(false));
   }, [user?.id]);
 
@@ -198,6 +203,12 @@ export default function HistoryScreen() {
       {loading ? (
         <View style={styles.center}>
           <ActivityIndicator color={C.primary} size="large" />
+        </View>
+      ) : error ? (
+        <View style={styles.center}>
+          <Ionicons name="cloud-offline-outline" size={48} color={C.textDisabled} />
+          <Text style={[styles.emptyTitle, { color: C.textPrimary }]}>Erreur de chargement</Text>
+          <Text style={[styles.emptyText, { color: C.textMuted }]}>{error}</Text>
         </View>
       ) : displayed.length === 0 ? (
         <View style={styles.center}>
