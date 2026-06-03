@@ -24,3 +24,9 @@ export function profileUrl(path: string | null, size: 'w185' | 'w342' = 'w185'):
   const base = process.env.EXPO_PUBLIC_TMDB_IMAGE_BASE_URL ?? 'https://image.tmdb.org/t/p';
   return `${base}/${size}${path}`;
 }
+
+export function backdropUrl(path: string | null, size: 'w780' | 'w1280' | 'original' = 'w1280'): string | null {
+  if (!path) return null;
+  const base = process.env.EXPO_PUBLIC_TMDB_IMAGE_BASE_URL ?? 'https://image.tmdb.org/t/p';
+  return `${base}/${size}${path}`;
+}

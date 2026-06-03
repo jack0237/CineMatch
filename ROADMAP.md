@@ -61,10 +61,10 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 
 ## Bloc 6 — Fiche Film `Semaines 3-4`
 
-- [ ] [#15](https://github.com/jack0237/CineMatch/issues/15) — Données film (synopsis, durée, genres, note)
-- [ ] [#36](https://github.com/jack0237/CineMatch/issues/36) — Header cinématique (poster hero + gradient + Watch Trailer + Share)
-- [ ] [#16](https://github.com/jack0237/CineMatch/issues/16) — Casting des 5 premiers acteurs
-- [ ] [#17](https://github.com/jack0237/CineMatch/issues/17) — Lien bande-annonce YouTube
+- [x] [#15](https://github.com/jack0237/CineMatch/issues/15) — Données film (synopsis, durée, genres, note)
+- [x] [#36](https://github.com/jack0237/CineMatch/issues/36) — Header cinématique (poster hero + gradient + Watch Trailer + Share)
+- [x] [#16](https://github.com/jack0237/CineMatch/issues/16) — Casting des 5 premiers acteurs
+- [x] [#17](https://github.com/jack0237/CineMatch/issues/17) — Lien bande-annonce YouTube
 
 ---
 
@@ -105,8 +105,8 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 | API/Nav       | 4      | 4      | 0         |
 | Swipe         | 5      | 5      | 0         |
 | Matches/Search| 4      | 2      | 2         |
-| Fiche film    | 4      | 0      | 4         |
+| Fiche film    | 4      | 4      | 0         |
 | UX Polish     | 6      | 0      | 6         |
 | Bonus         | 3      | 0      | 3         |
 | Livraison     | 4      | 0      | 4         |
-| **Total**     | **38** | **19** | **19**    |
+| **Total**     | **38** | **23** | **15**    |
