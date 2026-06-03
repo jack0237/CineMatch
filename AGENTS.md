@@ -22,6 +22,8 @@ src/
   app/
     (auth)/              # login.tsx, register.tsx, forgot-password.tsx
     (tabs)/              # swipe.tsx, matches.tsx, search.tsx, history.tsx, profile.tsx
+                         # history.tsx: tabBarStyle display:none — accessible via router.push('/history')
+    history.tsx          # Redirect guard → /(tabs)/history (route collision prevention)
     movie/[id].tsx       # Movie detail screen (Stack, transparent header)
     _layout.tsx          # Root layout: fonts, auth guard, GestureHandlerRootView
   components/
@@ -130,7 +132,7 @@ Copy `.env.example` to `.env`. Never commit `.env`.
 | `EXPO_PUBLIC_TMDB_API_KEY`        | TMDB v3 API key                    |
 | `EXPO_PUBLIC_TMDB_BASE_URL`       | `https://api.themoviedb.org/3`     |
 | `EXPO_PUBLIC_TMDB_IMAGE_BASE_URL` | `https://image.tmdb.org/t/p`       |
-| `STITCH_API_KEY`                  | Google Stitch (settings.local.json only)    |
+| `STITCH_API_KEY`                  | Stitch (settings.local.json only)  |
 
 ## MCP Servers
 

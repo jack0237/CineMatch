@@ -71,9 +71,9 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 ## Bloc 7 — UX Polish `Semaines 5-6`
 
 - [ ] [#37](https://github.com/jack0237/CineMatch/issues/37) — Skeleton loading (remplace ActivityIndicator par des shimmer)
-- [ ] [#20](https://github.com/jack0237/CineMatch/issues/20) — Loading states ActivityIndicator (fallback si pas de skeleton)
-- [ ] [#21](https://github.com/jack0237/CineMatch/issues/21) — Gestion erreurs réseau (messages lisibles, pas de crash silencieux)
-- [ ] [#22](https://github.com/jack0237/CineMatch/issues/22) — Empty states sur toutes les listes
+- [x] [#20](https://github.com/jack0237/CineMatch/issues/20) — Loading states ActivityIndicator (fallback si pas de skeleton)
+- [x] [#21](https://github.com/jack0237/CineMatch/issues/21) — Gestion erreurs réseau (messages lisibles, pas de crash silencieux)
+- [x] [#22](https://github.com/jack0237/CineMatch/issues/22) — Empty states sur toutes les listes
 - [ ] [#23](https://github.com/jack0237/CineMatch/issues/23) — Validation responsive (pas d'overflow, pas de texte coupé)
 - [ ] [#24](https://github.com/jack0237/CineMatch/issues/24) — Tests sur device réel iOS et Android (Expo Go)
 
@@ -89,7 +89,7 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 
 ## Bloc 9 — Livraison `Semaine 8`
 
-- [ ] [#27](https://github.com/jack0237/CineMatch/issues/27) — README.md complet (instructions, .env.example, librairies)
+- [x] [#27](https://github.com/jack0237/CineMatch/issues/27) — README.md complet (instructions, .env.example, librairies)
 - [ ] [#28](https://github.com/jack0237/CineMatch/issues/28) — Audit sécurité (aucune clé hardcodée dans le code)
 - [ ] [#29](https://github.com/jack0237/CineMatch/issues/29) — Publier sur Expo Go (QR Code pour le README)
 - [ ] [#30](https://github.com/jack0237/CineMatch/issues/30) — Préparer la soutenance (scénario demo 15 min)
@@ -106,7 +106,7 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 | Swipe         | 5      | 5      | 0         |
 | Matches/Search| 4      | 4      | 0         |
 | Fiche film    | 4      | 4      | 0         |
-| UX Polish     | 6      | 0      | 6         |
+| UX Polish     | 6      | 3      | 3         |
 | Bonus         | 3      | 2      | 1         |
-| Livraison     | 4      | 0      | 4         |
-| **Total**     | **38** | **27** | **11**    |
+| Livraison     | 4      | 1      | 3         |
+| **Total**     | **38** | **31** | **7**     |

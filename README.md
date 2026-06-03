@@ -23,7 +23,13 @@ Application mobile (iOS, Android) — Évaluation React Native M1, SUP de Vinci.
 - [x] Matches screen — films likés triés par note, grille 2 colonnes, sauvegardés dans Supabase
 - [x] Fiche film — synopsis, durée, genres, note, top 5 casting, bande-annonce YouTube
 - [x] Recherche — barre de recherche avec debounce (400 ms), résultats TMDB
-- [ ] Historique — tous les films swipés (likés et refusés) depuis Supabase
+- [x] Historique — tous les films swipés (aimés/passés), filtres, accessible depuis le profil
+
+### UX
+
+- [x] Loading states (ActivityIndicator) sur tous les écrans
+- [x] Messages d'erreur réseau lisibles sur tous les écrans
+- [x] Empty states sur toutes les listes
 
 ### Bonus
 
@@ -154,7 +160,9 @@ assets/                  # Images et icônes
 
 ## Progression
 
-26 / 38 issues terminées — voir [ROADMAP.md](./ROADMAP.md) pour le détail par bloc.
+**31 / 38 issues terminées** — voir [ROADMAP.md](./ROADMAP.md) pour le détail par bloc.
+
+Restant : #37 (skeleton), #23 (responsive), #24 (tests device), #26 (animation rotation), #28 (audit sécurité), #29 (Expo Go QR), #30 (soutenance).
 
 ## Project board
 
