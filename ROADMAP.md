@@ -52,8 +52,8 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 
 ## Bloc 5 — Écrans Matches, Recherche, Historique `Semaines 3-4`
 
-- [ ] [#14](https://github.com/jack0237/CineMatch/issues/14) — Matches screen (liste films likés depuis Supabase)
-- [ ] [#38](https://github.com/jack0237/CineMatch/issues/38) — Matches Vault (grille 2 colonnes + tri note/date)
+- [x] [#14](https://github.com/jack0237/CineMatch/issues/14) — Matches screen (liste films likés depuis Supabase)
+- [x] [#38](https://github.com/jack0237/CineMatch/issues/38) — Matches Vault (grille 2 colonnes + tri note/date)
 - [ ] [#18](https://github.com/jack0237/CineMatch/issues/18) — Recherche avec debounce
 - [ ] [#19](https://github.com/jack0237/CineMatch/issues/19) — Historique (tous les films swipés)
 
@@ -104,9 +104,9 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 | Auth          | 4      | 4      | 0         |
 | API/Nav       | 4      | 4      | 0         |
 | Swipe         | 5      | 5      | 0         |
-| Matches/Search| 4      | 0      | 4         |
+| Matches/Search| 4      | 2      | 2         |
 | Fiche film    | 4      | 0      | 4         |
 | UX Polish     | 6      | 0      | 6         |
 | Bonus         | 3      | 0      | 3         |
 | Livraison     | 4      | 0      | 4         |
-| **Total**     | **38** | **17** | **21**    |
+| **Total**     | **38** | **19** | **19**    |
