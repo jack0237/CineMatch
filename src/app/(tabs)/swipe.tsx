@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   runOnJS,
@@ -30,6 +31,7 @@ const STACK_SIZE = 3; // visible cards in stack
 
 export default function SwipeScreen() {
   const { user } = useAuth();
+  const router = useRouter();
   const [deck, setDeck] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -213,7 +215,12 @@ export default function SwipeScreen() {
         </Pressable>
 
         {/* Info — navigate to detail */}
-        <Pressable style={[styles.actionBtn, styles.actionBtnSm]}>
+        <Pressable
+          style={[styles.actionBtn, styles.actionBtnSm]}
+          onPress={() => {
+            const movie = deck[0];
+            if (movie) router.push({ pathname: '/movie/[id]', params: { id: movie.id, title: movie.title } });
+          }}>
           <Ionicons name="information-circle-outline" size={22} color={Cinema.textSecondary} />
         </Pressable>
 
