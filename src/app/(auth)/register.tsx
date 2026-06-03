@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import {
+  Dimensions,
+  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -9,14 +11,23 @@ import {
   View,
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Cinema, FontSize, Spacing } from '@/constants/theme';
+import { Cinema, Stitch } from '@/constants/theme';
 import { supabase } from '@/services/supabase';
+
+const HERO_URI =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuBiB4v--saynh5QTQhc4wSCoDVF9BAE26400WY04nvmfTePKHCUn1SIPYFEFCZhNlh0jOK6aKe4gpVWC36JGBXcVeES_Rf--IPnZzdtvImzArQzvd6OyuOz8-nybUNnUHGsmqb1rPUYKHKussU30iv453hkUgisajyBWaJNl1CtIyV-hNqgSPvx05aPxucB9ZJGxBSo68HDk6IstplbDyNupgasWmohO2SibaHYKID1YxJaV7LLG1Toh1AgDZLCiQHlzRy9jEE7f_I';
+
+const { height: SCREEN_H } = Dimensions.get('window');
+const HERO_H = Math.min(280, Math.floor(SCREEN_H * 0.34));
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -48,170 +59,237 @@ export default function RegisterScreen() {
     }
   }
 
+  // ── Success state ──────────────────────────────────────────────────────────
   if (success) {
     return (
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.successContainer}>
-          <Text style={styles.successIcon}>✓</Text>
-          <Text style={styles.successTitle}>Compte créé !</Text>
-          <Text style={styles.successSub}>
-            Vérifie ta boîte mail pour confirmer ton adresse.
+      <View style={s.root}>
+        <View style={[s.successContainer, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}>
+          <View style={s.successIconWrap}>
+            <Ionicons name="checkmark" size={40} color={Stitch.secondary} />
+          </View>
+          <Text style={s.successTitle}>Compte créé !</Text>
+          <Text style={s.successSub}>
+            Vérifie ta boîte mail pour confirmer ton adresse avant de te connecter.
           </Text>
           <Button
+            variant="gradient"
             label="Se connecter"
+            icon="arrow-forward"
             onPress={() => router.replace('/(auth)/login')}
-            style={styles.btn}
+            style={s.successBtn}
           />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
+  // ── Form state ─────────────────────────────────────────────────────────────
   return (
-    <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
+    <View style={s.root}>
+      {/* ── Hero image (top ~34%) ── */}
+      <ImageBackground source={{ uri: HERO_URI }} style={s.hero} resizeMode="cover">
+        <LinearGradient
+          colors={['rgba(19,19,19,0.4)', 'rgba(19,19,19,0.6)', Cinema.bg]}
+          locations={[0, 0.5, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={[s.brand, { paddingTop: insets.top }]}>
+          <Text style={s.brandTitle}>CineMatch</Text>
+          <Text style={s.brandTagline}>Create your account.</Text>
+        </View>
+      </ImageBackground>
 
-          {/* Hero */}
-          <View style={styles.hero}>
-            <View style={styles.phoneMockup}>
-              <View style={styles.phoneScreen} />
+      {/* ── Glass panel ── */}
+      <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <View style={s.panel}>
+          <View style={s.handle} />
+
+          <ScrollView
+            style={s.flex}
+            contentContainerStyle={[s.scroll, { paddingBottom: insets.bottom + 24 }]}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}>
+
+            <View style={s.form}>
+              <Input
+                label="Email Address"
+                value={email}
+                onChangeText={(t) => { setEmail(t); setError(''); }}
+                keyboardType="email-address"
+                autoComplete="email"
+                textContentType="emailAddress"
+              />
+              <Input
+                label="Password"
+                value={password}
+                onChangeText={(t) => { setPassword(t); setError(''); }}
+                isPassword
+                autoComplete="new-password"
+                textContentType="newPassword"
+              />
+              <Input
+                label="Confirm Password"
+                value={confirm}
+                onChangeText={(t) => { setConfirm(t); setError(''); }}
+                isPassword
+                autoComplete="new-password"
+                textContentType="newPassword"
+              />
             </View>
-          </View>
 
-          {/* Brand */}
-          <Text style={styles.brand}>CineMatch</Text>
-          <Text style={styles.tagline}>Create your account.</Text>
+            {error ? <Text style={s.errorText}>{error}</Text> : null}
 
-          <View style={styles.divider} />
+            <View style={s.spacer} />
 
-          {/* Form */}
-          <View style={styles.form}>
-            <Input
-              label="Email Address"
-              value={email}
-              onChangeText={(t) => { setEmail(t); setError(''); }}
-              keyboardType="email-address"
-              autoComplete="email"
-              textContentType="emailAddress"
+            <Button
+              variant="gradient"
+              label="Sign Up"
+              icon="arrow-forward"
+              loading={loading}
+              onPress={handleSignUp}
             />
-            <Input
-              label="Password"
-              value={password}
-              onChangeText={(t) => { setPassword(t); setError(''); }}
-              isPassword
-              autoComplete="new-password"
-              textContentType="newPassword"
-            />
-            <Input
-              label="Confirm Password"
-              value={confirm}
-              onChangeText={(t) => { setConfirm(t); setError(''); }}
-              isPassword
-              autoComplete="new-password"
-              textContentType="newPassword"
-            />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          </View>
 
-          <View style={styles.spacer} />
+            <View style={s.signinRow}>
+              <Text style={s.signinText}>Already have an account?</Text>
+              <Link href="/(auth)/login" asChild>
+                <Pressable>
+                  <Text style={s.signinLink}>Sign In</Text>
+                </Pressable>
+              </Link>
+            </View>
 
-          <Button label="Sign Up  →" loading={loading} onPress={handleSignUp} style={styles.btn} />
-
-          <View style={styles.signinRow}>
-            <Text style={styles.signinText}>{'Already have an account?  '}</Text>
-            <Link href="/(auth)/login" asChild>
-              <Pressable>
-                <Text style={styles.signinLink}>Sign In</Text>
-              </Pressable>
-            </Link>
-          </View>
-
-        </ScrollView>
+          </ScrollView>
+        </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Cinema.bg },
+const s = StyleSheet.create({
+  root: { flex: 1, backgroundColor: Cinema.bg },
   flex: { flex: 1 },
-  scroll: {
-    flexGrow: 1,
-    paddingHorizontal: Spacing['2xl'],
-    paddingBottom: Spacing['2xl'],
-  },
+
   hero: {
-    alignItems: 'center',
-    paddingTop: Spacing.lg,
-    paddingBottom: Spacing.xl,
-    height: 220,
-    justifyContent: 'center',
-  },
-  phoneMockup: {
-    width: 140,
-    height: 200,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#2A2A3A',
-    backgroundColor: '#141420',
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  phoneScreen: {
-    width: '80%',
-    height: '70%',
-    backgroundColor: '#1E1E30',
-    borderRadius: 8,
+    height: HERO_H,
+    width: '100%',
+    justifyContent: 'flex-end',
   },
   brand: {
+    paddingHorizontal: 20,
+    paddingBottom: 24,
+    zIndex: 10,
+  },
+  brandTitle: {
     color: Cinema.textPrimary,
-    fontSize: 42,
-    fontWeight: '700',
-    letterSpacing: -0.5,
+    fontSize: 48,
+    lineHeight: 52,
+    fontFamily: 'Sora-ExtraBold',
+    letterSpacing: -0.96,
+    textShadowColor: 'rgba(0,0,0,0.8)',
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 12,
+    marginBottom: 8,
   },
-  tagline: {
+  brandTagline: {
     color: Cinema.textSecondary,
-    fontSize: FontSize.base,
-    marginTop: Spacing.xs,
+    fontSize: 20,
+    lineHeight: 28,
+    fontFamily: 'Sora-SemiBold',
+    textShadowColor: 'rgba(0,0,0,0.8)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#1F1F2E',
-    marginVertical: Spacing.xl,
+
+  panel: {
+    flex: 1,
+    backgroundColor: 'rgba(19,19,19,0.97)',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    marginTop: -24,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.08)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -12 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 16,
+    paddingTop: 16,
   },
-  form: { gap: Spacing.xl },
-  errorText: { color: '#EF4444', fontSize: FontSize.sm, textAlign: 'center' },
-  spacer: { flex: 1, minHeight: Spacing['3xl'] },
-  btn: { marginBottom: Spacing.md },
+  handle: {
+    width: 48,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Cinema.surfaceHighest,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  scroll: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+  },
+  form: {
+    gap: 32,
+    marginTop: 8,
+  },
+  errorText: {
+    color: Stitch.error,
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 12,
+  },
+  spacer: { flex: 1, minHeight: 28 },
+
   signinRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: Spacing.md,
+    gap: 4,
+    marginTop: 24,
   },
-  signinText: { color: Cinema.textSecondary, fontSize: FontSize.sm },
-  signinLink: { color: Cinema.primary, fontSize: FontSize.sm, fontWeight: '600' },
+  signinText: {
+    color: Cinema.textSecondary,
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  signinLink: {
+    color: Cinema.primary,
+    fontSize: 14,
+    fontFamily: 'Sora-SemiBold',
+    letterSpacing: 0.7,
+  },
+
   // Success state
   successContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: Spacing['2xl'],
-    gap: Spacing.lg,
+    paddingHorizontal: 24,
+    gap: 20,
   },
-  successIcon: { fontSize: 56, color: Cinema.primary },
-  successTitle: { color: Cinema.textPrimary, fontSize: FontSize['2xl'], fontWeight: '700' },
+  successIconWrap: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(78,222,163,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  successTitle: {
+    color: Cinema.textPrimary,
+    fontSize: 28,
+    lineHeight: 36,
+    fontFamily: 'Sora-Bold',
+    letterSpacing: -0.3,
+  },
   successSub: {
     color: Cinema.textSecondary,
-    fontSize: FontSize.base,
-    textAlign: 'center',
+    fontSize: 16,
     lineHeight: 24,
+    textAlign: 'center',
+  },
+  successBtn: {
+    alignSelf: 'stretch',
+    marginTop: 8,
   },
 });

@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
+  Animated,
   Pressable,
   StyleSheet,
-  Text,
   TextInput,
   type TextInputProps,
   View,
+  Text,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Cinema, FontSize, Spacing } from '@/constants/theme';
+import { Cinema, FontSize, Stitch } from '@/constants/theme';
 
 interface InputProps extends TextInputProps {
   label: string;
@@ -16,64 +17,113 @@ interface InputProps extends TextInputProps {
   isPassword?: boolean;
 }
 
-export function Input({ label, error, isPassword, style, ...rest }: InputProps) {
-  const [visible, setVisible] = useState(false);
+export function Input({ label, error, isPassword, value, style, onFocus, onBlur, ...rest }: InputProps) {
+  const [focused, setFocused] = useState(false);
+  const [secure, setSecure] = useState(true);
+  const anim = useRef(new Animated.Value(value ? 1 : 0)).current;
+
+  const lift = () =>
+    Animated.timing(anim, { toValue: 1, duration: 200, useNativeDriver: false }).start();
+
+  const drop = () => {
+    if (!value)
+      Animated.timing(anim, { toValue: 0, duration: 200, useNativeDriver: false }).start();
+  };
+
+  const labelTop  = anim.interpolate({ inputRange: [0, 1], outputRange: [12, -10] });
+  const labelSize = anim.interpolate({ inputRange: [0, 1], outputRange: [16, 13] });
+  const labelColor = focused
+    ? Cinema.primary
+    : value
+      ? Cinema.textSecondary
+      : Cinema.textMuted;
 
   return (
-    <View style={styles.wrapper}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={[styles.row, error ? styles.rowError : null]}>
-        <TextInput
-          style={[styles.input, style]}
-          placeholderTextColor={Cinema.textMuted}
-          selectionColor={Cinema.primary}
-          secureTextEntry={isPassword && !visible}
-          autoCapitalize="none"
-          {...rest}
-        />
-        {isPassword && (
-          <Pressable onPress={() => setVisible((v) => !v)} hitSlop={8}>
-            <Ionicons
-              name={visible ? 'eye-off-outline' : 'eye-outline'}
-              size={20}
-              color={Cinema.textMuted}
-            />
-          </Pressable>
-        )}
+    <View style={styles.outer}>
+      <View style={styles.wrapper}>
+        <Animated.Text
+          style={[styles.label, { top: labelTop, fontSize: labelSize, color: labelColor }]}
+          pointerEvents="none"
+        >
+          {label}
+        </Animated.Text>
+
+        <View style={[
+          styles.row,
+          focused && styles.rowActive,
+          !!error && styles.rowError,
+        ]}>
+          <TextInput
+            style={[styles.input, style]}
+            value={value}
+            secureTextEntry={isPassword && secure}
+            onFocus={(e) => {
+              setFocused(true);
+              lift();
+              onFocus?.(e);
+            }}
+            onBlur={(e) => {
+              setFocused(false);
+              drop();
+              onBlur?.(e);
+            }}
+            placeholderTextColor="transparent"
+            selectionColor={Cinema.primary}
+            autoCapitalize="none"
+            {...rest}
+          />
+          {isPassword && (
+            <Pressable onPress={() => setSecure((s) => !s)} hitSlop={8}>
+              <Ionicons
+                name={secure ? 'eye-off-outline' : 'eye-outline'}
+                size={20}
+                color={Cinema.textMuted}
+              />
+            </Pressable>
+          )}
+        </View>
       </View>
+
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  outer: {
+    gap: 4,
+  },
   wrapper: {
-    gap: Spacing.sm,
+    height: 56,
+    justifyContent: 'flex-end',
   },
   label: {
-    color: Cinema.textSecondary,
-    fontSize: FontSize.sm,
-    fontWeight: '500',
+    position: 'absolute',
+    left: 0,
+    lineHeight: 24,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#2A2A3A',
-    paddingBottom: Spacing.sm,
+    borderBottomColor: Stitch.outlineVariant,
+    paddingBottom: 8,
+  },
+  rowActive: {
+    borderBottomColor: Cinema.primary,
   },
   rowError: {
-    borderBottomColor: '#EF4444',
+    borderBottomColor: Stitch.error,
   },
   input: {
     flex: 1,
     color: Cinema.textPrimary,
     fontSize: FontSize.base,
-    fontWeight: '400',
+    lineHeight: 24,
     paddingVertical: 0,
   },
   error: {
-    color: '#EF4444',
+    color: Stitch.error,
     fontSize: FontSize.xs,
   },
 });
