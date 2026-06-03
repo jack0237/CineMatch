@@ -31,7 +31,9 @@ export default function ForgotPasswordScreen() {
     }
     setError('');
     setLoading(true);
-    const { error: authError } = await supabase.auth.resetPasswordForEmail(email);
+    const { error: authError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'cinematch://reset-password',
+    });
     setLoading(false);
     if (authError) {
       setError(authError.message);
