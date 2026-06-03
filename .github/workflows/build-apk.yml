@@ -10,6 +10,8 @@ jobs:
   build:
     name: Install and build
     runs-on: ubuntu-latest
+    permissions: # Requis pour créer une release
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,9 +42,18 @@ jobs:
           EXPO_PUBLIC_TMDB_BASE_URL: ${{ secrets.EXPO_PUBLIC_TMDB_BASE_URL }}
           EXPO_PUBLIC_TMDB_IMAGE_BASE_URL: ${{ secrets.EXPO_PUBLIC_TMDB_IMAGE_BASE_URL }}
 
-      - name: Upload APK as Artifact
-        uses: actions/upload-artifact@v4
+      - name: Get APK Filename
+        id: get-apk
+        run: echo "path=$(ls *.apk)" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: CineMatch-APK
-          path: "*.apk"
-          retention-days: 7
+          tag_name: v${{ github.run_number }}
+          name: Release CineMatch v${{ github.run_number }}
+          files: ${{ steps.get-apk.outputs.path }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
