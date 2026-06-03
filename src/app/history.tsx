@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   FlatList,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -20,7 +21,7 @@ import type { SwipeHistory } from '@/types/supabase';
 import { posterUrl } from '@/utils/format';
 import { GENRE_NAMES } from '@/components/SearchResultCard';
 
-// ── Utils ─────────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const MONTHS_FR = [
   'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin',
@@ -32,14 +33,14 @@ function formatDate(iso: string): string {
   return `${d.getDate()} ${MONTHS_FR[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-// ── Filter chips ──────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 type Filter = 'all' | 'like' | 'dislike';
 
 const CHIPS: { id: Filter; label: string }[] = [
-  { id: 'all',     label: 'Tous' },
-  { id: 'like',    label: 'Aimés' },
-  { id: 'dislike', label: 'Passés' },
+  { id: 'all',     label: 'All Swipes' },
+  { id: 'like',    label: 'Liked' },
+  { id: 'dislike', label: 'Passed' },
 ];
 
 // ── HistoryItem ───────────────────────────────────────────────────────────────
@@ -51,33 +52,23 @@ function HistoryItem({
   item: SwipeHistory;
   onPress: () => void;
 }) {
-  const C = useColors();
   const isLiked = item.action === 'like';
   const uri = posterUrl(item.movie_poster_path, 'w342') ?? undefined;
-  const genre = item.movie_genre_ids[0]
-    ? GENRE_NAMES[item.movie_genre_ids[0]]
-    : null;
+  const genre = item.movie_genre_ids[0] ? GENRE_NAMES[item.movie_genre_ids[0]] : null;
 
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        { borderColor: 'rgba(255,255,255,0.08)' },
-        pressed && styles.cardPressed,
-      ]}
+      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
-      {/* Poster */}
-      <View style={[styles.posterWrap, { opacity: isLiked ? 1 : 0.65 }]}>
-        <Image
-          source={uri}
-          style={StyleSheet.absoluteFill}
-          contentFit="cover"
-          transition={200}
-        />
+      {/* Poster — opacity reduced + grey overlay for "passed" */}
+      <View style={[styles.posterWrap, !isLiked && styles.posterWrapPassed]}>
+        <Image source={uri} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
+        {/* grayscale simulation for passed items */}
+        {!isLiked && <View style={styles.posterGreyOverlay} />}
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.6)']}
-          locations={[0.5, 1]}
+          locations={[0.45, 1]}
           style={StyleSheet.absoluteFill}
         />
       </View>
@@ -95,16 +86,12 @@ function HistoryItem({
         </Text>
         <View style={styles.metaRow}>
           {genre && (
-            <Text style={[styles.meta, { color: Stitch.onSurfaceVariant }]}>
-              {genre.toUpperCase()}
-            </Text>
+            <Text style={styles.metaText}>{genre.toUpperCase()}</Text>
           )}
           {genre && (
-            <View style={[styles.metaDot, { backgroundColor: `${Stitch.onSurfaceVariant}4D` }]} />
+            <View style={styles.metaDot} />
           )}
-          <Text style={[styles.meta, { color: Stitch.onSurfaceVariant }]}>
-            {formatDate(item.swiped_at)}
-          </Text>
+          <Text style={styles.metaText}>{formatDate(item.swiped_at)}</Text>
         </View>
       </View>
 
@@ -114,8 +101,8 @@ function HistoryItem({
           styles.badge,
           {
             backgroundColor: isLiked
-              ? 'rgba(0,165,114,0.2)'
-              : 'rgba(147,0,10,0.2)',
+              ? 'rgba(0,165,114,0.2)'   // secondary-container/20
+              : 'rgba(147,0,10,0.2)',   // error-container/20
           },
         ]}
       >
@@ -129,12 +116,13 @@ function HistoryItem({
   );
 }
 
-// ── HistoryScreen ─────────────────────────────────────────────────────────────
+// ── Screen ────────────────────────────────────────────────────────────────────
 
 export default function HistoryScreen() {
   const C = useColors();
   const router = useRouter();
   const { user } = useAuth();
+
   const [allSwipes, setAllSwipes] = useState<SwipeHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>('all');
@@ -149,25 +137,34 @@ export default function HistoryScreen() {
   }, [user?.id]);
 
   const displayed =
-    filter === 'all'
-      ? allSwipes
-      : allSwipes.filter(s => s.action === filter);
+    filter === 'all' ? allSwipes : allSwipes.filter(s => s.action === filter);
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: C.bg }]} edges={['top']}>
 
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <View style={[styles.header, { borderBottomColor: 'rgba(255,255,255,0.06)' }]}>
-        <Pressable onPress={() => router.back()} hitSlop={10} style={styles.headerBtn}>
-          <Ionicons name="chevron-back" size={26} color={C.primary} />
+      {/* ── Header — bg-surface/80 backdrop-blur ────────────────────────────── */}
+      <View style={styles.header}>
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={10}
+          style={styles.backBtn}
+        >
+          <Ionicons name="arrow-back" size={26} color={Stitch.onSurfaceVariant} />
         </Pressable>
-        <Text style={[styles.headerTitle, { color: C.primary }]}>Cinematic History</Text>
-        {/* spacer for centering */}
-        <View style={styles.headerBtn} />
+        <Text style={[styles.headerTitle, { color: C.primary }]}>
+          Cinematic History
+        </Text>
+        {/* spacer mirror back button for centering */}
+        <View style={styles.backBtn} />
       </View>
 
-      {/* ── Filter chips ─────────────────────────────────────────────────────── */}
-      <View style={styles.chipsRow}>
+      {/* ── Filter chips — horizontal scroll ────────────────────────────────── */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.chipsScroll}
+        contentContainerStyle={styles.chipsContent}
+      >
         {CHIPS.map(chip => {
           const active = filter === chip.id;
           return (
@@ -178,11 +175,9 @@ export default function HistoryScreen() {
                 styles.chip,
                 {
                   backgroundColor: active
-                    ? `${C.primary}1A`
-                    : 'rgba(255,255,255,0.03)',
-                  borderColor: active
-                    ? 'rgba(255,255,255,0.15)'
-                    : 'rgba(255,255,255,0.08)',
+                    ? `${C.primary}1A`           // primary/10
+                    : 'rgba(255,255,255,0.03)',   // glass-panel
+                  borderColor: 'rgba(255,255,255,0.08)', // inner-glow equivalent
                 },
               ]}
             >
@@ -197,7 +192,7 @@ export default function HistoryScreen() {
             </Pressable>
           );
         })}
-      </View>
+      </ScrollView>
 
       {/* ── Content ──────────────────────────────────────────────────────────── */}
       {loading ? (
@@ -208,7 +203,11 @@ export default function HistoryScreen() {
         <View style={styles.center}>
           <Ionicons name="film-outline" size={48} color={C.textDisabled} />
           <Text style={[styles.emptyTitle, { color: C.textPrimary }]}>
-            {filter === 'all' ? 'Aucun film swipé' : filter === 'like' ? 'Aucun film aimé' : 'Aucun film passé'}
+            {filter === 'all'
+              ? 'Aucun film swipé'
+              : filter === 'like'
+              ? 'Aucun film aimé'
+              : 'Aucun film passé'}
           </Text>
           <Text style={[styles.emptyText, { color: C.textMuted }]}>
             Lance le swipe pour remplir ton historique.
@@ -226,7 +225,7 @@ export default function HistoryScreen() {
           )}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          keyboardDismissMode="on-drag"
         />
       )}
     </SafeAreaView>
@@ -235,31 +234,45 @@ export default function HistoryScreen() {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 
+const H_PAD = 20;
+
 const styles = StyleSheet.create({
   root: { flex: 1 },
 
-  // Header
+  // Header: bg-surface/80 backdrop-blur-xl border-b border-white/5
   header: {
     height: 56,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: H_PAD,
+    backgroundColor: 'rgba(19,19,19,0.8)',
     borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
-  headerBtn: { width: 36, alignItems: 'center' },
+  backBtn: {
+    width: 40,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    padding: 4,
+    marginLeft: -4,
+  },
+  // headline-lg-mobile: 28px bold
   headerTitle: {
     fontFamily: Fonts.bold,
-    fontSize: FontSize['2xl'],
-    letterSpacing: -0.5,
+    fontSize: 28,
+    lineHeight: 36,
+    letterSpacing: -0.3,
+    flex: 1,
+    textAlign: 'center',
   },
 
-  // Chips
-  chipsRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    paddingHorizontal: 20,
+  // Filter chips — gap-3 = 12px
+  chipsScroll: { flexGrow: 0 },
+  chipsContent: {
+    paddingHorizontal: H_PAD,
     paddingVertical: Spacing.md,
+    gap: 12,
   },
   chip: {
     paddingHorizontal: Spacing.lg,
@@ -270,68 +283,79 @@ const styles = StyleSheet.create({
   chipLabel: {
     fontFamily: Fonts.semibold,
     fontSize: FontSize.sm,
-    letterSpacing: 0.3,
+    letterSpacing: 0.7,
   },
 
-  // List
+  // List content — gap-4 = 16px between cards
   listContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: H_PAD,
     paddingBottom: 40,
+    gap: 16,
   },
-  separator: { height: Spacing.md },
 
-  // Card
+  // Card: glass-panel rounded-card p-3
   card: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.lg,
     backgroundColor: 'rgba(255,255,255,0.03)',
     borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
     borderRadius: 24,
-    padding: Spacing.md,
+    padding: 12,
   },
   cardPressed: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: 'rgba(255,255,255,0.07)',
   },
 
-  // Poster
+  // Poster: w-16 h-24 rounded-lg
   posterWrap: {
     width: 64,
     height: 96,
     flexShrink: 0,
-    borderRadius: Radius.lg,
+    borderRadius: 8,              // rounded-lg = 0.5rem
     overflow: 'hidden',
     backgroundColor: Stitch.surfaceContainerHigh,
+  },
+  posterWrapPassed: {
+    opacity: 0.7,                 // opacity-70
+  },
+  posterGreyOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(150,150,150,0.25)',  // simulates grayscale-[30%]
   },
 
   // Details
   details: {
     flex: 1,
+    minWidth: 0,
     gap: 6,
   },
   title: {
     fontFamily: Fonts.semibold,
-    fontSize: FontSize.xl,
+    fontSize: FontSize.xl,        // title-md = 20px
     lineHeight: 28,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
-  meta: {
+  metaText: {
     fontFamily: Fonts.light,
     fontSize: 12,
-    letterSpacing: 0.8,
+    letterSpacing: 1,
     textTransform: 'uppercase',
+    color: Stitch.onSurfaceVariant,
   },
   metaDot: {
     width: 4,
     height: 4,
     borderRadius: 2,
+    backgroundColor: `${Stitch.onSurfaceVariant}4D`,
   },
 
-  // Action badge
+  // Badge: w-10 h-10 rounded-full
   badge: {
     width: 40,
     height: 40,
@@ -347,7 +371,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.sm,
-    paddingHorizontal: 20,
+    paddingHorizontal: H_PAD,
   },
   emptyTitle: {
     fontFamily: Fonts.bold,
