@@ -20,10 +20,10 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 
 > Socle obligatoire selon l'éval. Faire dès que Supabase est prêt.
 
-- [ ] [#4](https://github.com/jack0237/CineMatch/issues/4) — Écran Register (inscription email/mot de passe)
-- [ ] [#5](https://github.com/jack0237/CineMatch/issues/5) — Écran Login (connexion)
-- [ ] [#35](https://github.com/jack0237/CineMatch/issues/35) — Lien "Mot de passe oublié" sur Login
-- [ ] [#6](https://github.com/jack0237/CineMatch/issues/6) — AuthContext + protection des routes (auth guard)
+- [x] [#4](https://github.com/jack0237/CineMatch/issues/4) — Écran Register (inscription email/mot de passe)
+- [x] [#5](https://github.com/jack0237/CineMatch/issues/5) — Écran Login (connexion)
+- [x] [#35](https://github.com/jack0237/CineMatch/issues/35) — Lien "Mot de passe oublié" sur Login
+- [x] [#6](https://github.com/jack0237/CineMatch/issues/6) — AuthContext + protection des routes (auth guard)
 
 ---
 
@@ -101,7 +101,7 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 | Bloc          | Issues | Faites | Restantes |
 | ------------- | ------ | ------ | --------- |
 | Fondations    | 4      | 4      | 0         |
-| Auth          | 4      | 0      | 4         |
+| Auth          | 4      | 4      | 0         |
 | API/Nav       | 4      | 0      | 4         |
 | Swipe         | 5      | 0      | 5         |
 | Matches/Search| 4      | 0      | 4         |
@@ -109,4 +109,4 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 | UX Polish     | 6      | 0      | 6         |
 | Bonus         | 3      | 0      | 3         |
 | Livraison     | 4      | 0      | 4         |
-| **Total**     | **38** | **4**  | **34**    |
+| **Total**     | **38** | **8**  | **30**    |

@@ -1,7 +1,7 @@
 import { Redirect } from 'expo-router';
+import { useAuth } from '@/hooks/useAuth';
 
-// Auth guard sera implémenté dans l'issue #6.
-// Pour l'instant on redirige directement vers les tabs.
 export default function Index() {
-  return <Redirect href="/(tabs)/swipe" />;
+  const { session } = useAuth();
+  return <Redirect href={session ? '/(tabs)/swipe' : '/(auth)/login'} />;
 }
