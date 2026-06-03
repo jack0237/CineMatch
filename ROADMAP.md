@@ -81,8 +81,8 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 
 ## Bloc 8 — Bonus `Semaine 7` _(+1pt chacun, max +2)_
 
-- [ ] [#25](https://github.com/jack0237/CineMatch/issues/25) — Filtres par genre avant de swiper
-- [ ] [#33](https://github.com/jack0237/CineMatch/issues/33) — Filter Bottom Sheet complète (slider score + Era + Reset/Apply)
+- [x] [#25](https://github.com/jack0237/CineMatch/issues/25) — Filtres par genre avant de swiper
+- [x] [#33](https://github.com/jack0237/CineMatch/issues/33) — Filter Bottom Sheet complète (slider score + Era + Reset/Apply)
 - [ ] [#26](https://github.com/jack0237/CineMatch/issues/26) — Animation rotation carte pendant le swipe (Reanimated)
 
 ---
@@ -107,6 +107,6 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 | Matches/Search| 4      | 3      | 1         |
 | Fiche film    | 4      | 4      | 0         |
 | UX Polish     | 6      | 0      | 6         |
-| Bonus         | 3      | 0      | 3         |
+| Bonus         | 3      | 2      | 1         |
 | Livraison     | 4      | 0      | 4         |
-| **Total**     | **38** | **24** | **14**    |
+| **Total**     | **38** | **26** | **12**    |
