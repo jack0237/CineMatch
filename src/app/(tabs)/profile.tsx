@@ -3,7 +3,8 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/Button';
-import { Cinema, FontSize, Radius, Spacing } from '@/constants/theme';
+import { FontSize, Radius, Spacing } from '@/constants/theme';
+import { useColors } from '@/hooks/use-theme';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/services/supabase';
 
@@ -14,6 +15,7 @@ interface Stats {
 }
 
 export default function ProfileScreen() {
+  const C = useColors();
   const { user, signOut } = useAuth();
   const [stats, setStats] = useState<Stats>({ total: 0, liked: 0, disliked: 0 });
   const [loading, setLoading] = useState(true);
@@ -44,30 +46,30 @@ export default function ProfileScreen() {
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? '??';
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profil</Text>
+    <SafeAreaView style={[styles.safe, { backgroundColor: C.bg }]}>
+      <View style={[styles.header, { borderBottomColor: C.border }]}>
+        <Text style={[styles.headerTitle, { color: C.textPrimary }]}>Profil</Text>
       </View>
 
       <View style={styles.content}>
         {/* Avatar */}
-        <View style={styles.avatar}>
+        <View style={[styles.avatar, { backgroundColor: C.primary }]}>
           <Text style={styles.avatarText}>{initials}</Text>
         </View>
 
-        <Text style={styles.email}>{user?.email}</Text>
-        <Text style={styles.memberSince}>
+        <Text style={[styles.email, { color: C.textPrimary }]}>{user?.email}</Text>
+        <Text style={[styles.memberSince, { color: C.textMuted }]}>
           Membre depuis {new Date(user?.created_at ?? '').getFullYear()}
         </Text>
 
         {/* Stats */}
         {loading ? (
-          <ActivityIndicator color={Cinema.primary} style={styles.loader} />
+          <ActivityIndicator color={C.primary} style={styles.loader} />
         ) : (
           <View style={styles.statsRow}>
-            <StatCard icon="film" value={stats.total} label="Swipés" />
-            <StatCard icon="heart" value={stats.liked} label="Matches" color={Cinema.like} />
-            <StatCard icon="close-circle" value={stats.disliked} label="Refusés" color={Cinema.nope} />
+            <StatCard icon="film" value={stats.total} label="Swipés" color={C.primary} surfaceColor={C.surfaceElevated} />
+            <StatCard icon="heart" value={stats.liked} label="Matches" color={C.like} surfaceColor={C.surfaceElevated} />
+            <StatCard icon="close-circle" value={stats.disliked} label="Refusés" color={C.nope} surfaceColor={C.surfaceElevated} />
           </View>
         )}
 
@@ -88,34 +90,35 @@ function StatCard({
   icon,
   value,
   label,
-  color = Cinema.primary,
+  color,
+  surfaceColor,
 }: {
   icon: React.ComponentProps<typeof Ionicons>['name'];
   value: number;
   label: string;
-  color?: string;
+  color: string;
+  surfaceColor: string;
 }) {
+  const C = useColors();
   return (
-    <View style={styles.statCard}>
+    <View style={[styles.statCard, { backgroundColor: surfaceColor }]}>
       <Ionicons name={icon} size={22} color={color} />
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+      <Text style={[styles.statValue, { color: C.textPrimary }]}>{value}</Text>
+      <Text style={[styles.statLabel, { color: C.textSecondary }]}>{label}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Cinema.bg },
+  safe: { flex: 1 },
 
   header: {
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.md,
     paddingBottom: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: Cinema.border,
   },
   headerTitle: {
-    color: Cinema.textPrimary,
     fontSize: FontSize.xl,
     fontWeight: '700',
   },
@@ -132,7 +135,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: Radius.pill,
-    backgroundColor: Cinema.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.lg,
@@ -143,13 +145,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   email: {
-    color: Cinema.textPrimary,
     fontSize: FontSize.lg,
     fontWeight: '600',
     marginBottom: Spacing.xs,
   },
   memberSince: {
-    color: Cinema.textMuted,
     fontSize: FontSize.sm,
     marginBottom: Spacing['2xl'],
   },
@@ -163,19 +163,16 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: Cinema.surfaceElevated,
     borderRadius: Radius.lg,
     padding: Spacing.lg,
     alignItems: 'center',
     gap: Spacing.xs,
   },
   statValue: {
-    color: Cinema.textPrimary,
     fontSize: FontSize['2xl'],
     fontWeight: '700',
   },
   statLabel: {
-    color: Cinema.textSecondary,
     fontSize: FontSize.xs,
   },
 

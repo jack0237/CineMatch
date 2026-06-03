@@ -15,7 +15,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Cinema, Stitch } from '@/constants/theme';
+import { Stitch } from '@/constants/theme';
+import { useColors } from '@/hooks/use-theme';
 import { supabase } from '@/services/supabase';
 
 const HERO_URI =
@@ -25,6 +26,7 @@ const { height: SCREEN_H } = Dimensions.get('window');
 const HERO_H = Math.min(353, Math.floor(SCREEN_H * 0.42));
 
 export default function LoginScreen() {
+  const C = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
@@ -49,24 +51,24 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={s.root}>
+    <View style={[s.root, { backgroundColor: C.bg }]}>
       {/* ── Hero image (top ~40%) ── */}
       <ImageBackground source={{ uri: HERO_URI }} style={s.hero} resizeMode="cover">
         <LinearGradient
-          colors={['rgba(19,19,19,0.4)', 'rgba(19,19,19,0.6)', Cinema.bg]}
+          colors={['rgba(19,19,19,0.4)', 'rgba(19,19,19,0.6)', C.bg]}
           locations={[0, 0.5, 1]}
           style={StyleSheet.absoluteFill}
         />
         <View style={[s.brand, { paddingTop: insets.top }]}>
-          <Text style={s.brandTitle}>CineMatch</Text>
-          <Text style={s.brandTagline}>Discover your next favorite film.</Text>
+          <Text style={[s.brandTitle, { color: C.textPrimary }]}>CineMatch</Text>
+          <Text style={[s.brandTagline, { color: C.textSecondary }]}>Discover your next favorite film.</Text>
         </View>
       </ImageBackground>
 
       {/* ── Glass panel ── */}
       <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <View style={s.panel}>
-          <View style={s.handle} />
+        <View style={[s.panel, { backgroundColor: C.surface }]}>
+          <View style={[s.handle, { backgroundColor: C.surfaceHighest }]} />
 
           <ScrollView
             style={s.flex}
@@ -95,7 +97,7 @@ export default function LoginScreen() {
 
             <Link href="/(auth)/forgot-password" asChild>
               <Pressable style={s.forgotRow}>
-                <Text style={s.forgotText}>Forgot password?</Text>
+                <Text style={[s.forgotText, { color: C.primary }]}>Forgot password?</Text>
               </Pressable>
             </Link>
 
@@ -112,10 +114,10 @@ export default function LoginScreen() {
             />
 
             <View style={s.signupRow}>
-              <Text style={s.signupText}>{"Don't have an account?"}</Text>
+              <Text style={[s.signupText, { color: C.textSecondary }]}>{"Don't have an account?"}</Text>
               <Link href="/(auth)/register" asChild>
                 <Pressable>
-                  <Text style={s.signupLink}>Sign Up</Text>
+                  <Text style={[s.signupLink, { color: C.primary }]}>Sign Up</Text>
                 </Pressable>
               </Link>
             </View>
@@ -128,7 +130,7 @@ export default function LoginScreen() {
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Cinema.bg },
+  root: { flex: 1 },
   flex: { flex: 1 },
 
   hero: {
@@ -142,7 +144,6 @@ const s = StyleSheet.create({
     zIndex: 10,
   },
   brandTitle: {
-    color: Cinema.textPrimary,
     fontSize: 48,
     lineHeight: 52,
     fontFamily: 'Sora-ExtraBold',
@@ -153,7 +154,6 @@ const s = StyleSheet.create({
     marginBottom: 8,
   },
   brandTagline: {
-    color: Cinema.textSecondary,
     fontSize: 20,
     lineHeight: 28,
     fontFamily: 'Sora-SemiBold',
@@ -164,7 +164,6 @@ const s = StyleSheet.create({
 
   panel: {
     flex: 1,
-    backgroundColor: 'rgba(19,19,19,0.97)',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     marginTop: -24,
@@ -181,7 +180,6 @@ const s = StyleSheet.create({
     width: 48,
     height: 4,
     borderRadius: 2,
-    backgroundColor: Cinema.surfaceHighest,
     alignSelf: 'center',
     marginBottom: 24,
   },
@@ -199,7 +197,6 @@ const s = StyleSheet.create({
     marginTop: 16,
   },
   forgotText: {
-    color: Cinema.primary,
     fontSize: 14,
     fontFamily: 'Sora-SemiBold',
     letterSpacing: 0.7,
@@ -221,12 +218,10 @@ const s = StyleSheet.create({
     marginTop: 24,
   },
   signupText: {
-    color: Cinema.textSecondary,
     fontSize: 16,
     lineHeight: 24,
   },
   signupLink: {
-    color: Cinema.primary,
     fontSize: 14,
     fontFamily: 'Sora-SemiBold',
     letterSpacing: 0.7,

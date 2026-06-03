@@ -9,7 +9,8 @@ import {
   Text,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Cinema, FontSize, Stitch } from '@/constants/theme';
+import { FontSize, Stitch } from '@/constants/theme';
+import { useColors } from '@/hooks/use-theme';
 
 interface InputProps extends TextInputProps {
   label: string;
@@ -18,6 +19,7 @@ interface InputProps extends TextInputProps {
 }
 
 export function Input({ label, error, isPassword, value, style, onFocus, onBlur, ...rest }: InputProps) {
+  const C = useColors();
   const [focused, setFocused] = useState(false);
   const [secure, setSecure] = useState(true);
   const anim = useRef(new Animated.Value(value ? 1 : 0)).current;
@@ -33,10 +35,10 @@ export function Input({ label, error, isPassword, value, style, onFocus, onBlur,
   const labelTop  = anim.interpolate({ inputRange: [0, 1], outputRange: [12, -10] });
   const labelSize = anim.interpolate({ inputRange: [0, 1], outputRange: [16, 13] });
   const labelColor = focused
-    ? Cinema.primary
+    ? C.primary
     : value
-      ? Cinema.textSecondary
-      : Cinema.textMuted;
+      ? C.textSecondary
+      : C.textMuted;
 
   return (
     <View style={styles.outer}>
@@ -50,11 +52,12 @@ export function Input({ label, error, isPassword, value, style, onFocus, onBlur,
 
         <View style={[
           styles.row,
-          focused && styles.rowActive,
+          { borderBottomColor: C.border },
+          focused && { borderBottomColor: C.primary },
           !!error && styles.rowError,
         ]}>
           <TextInput
-            style={[styles.input, style]}
+            style={[styles.input, { color: C.textPrimary }, style]}
             value={value}
             secureTextEntry={isPassword && secure}
             onFocus={(e) => {
@@ -68,7 +71,7 @@ export function Input({ label, error, isPassword, value, style, onFocus, onBlur,
               onBlur?.(e);
             }}
             placeholderTextColor="transparent"
-            selectionColor={Cinema.primary}
+            selectionColor={C.primary}
             autoCapitalize="none"
             {...rest}
           />
@@ -77,7 +80,7 @@ export function Input({ label, error, isPassword, value, style, onFocus, onBlur,
               <Ionicons
                 name={secure ? 'eye-off-outline' : 'eye-outline'}
                 size={20}
-                color={Cinema.textMuted}
+                color={C.textMuted}
               />
             </Pressable>
           )}
@@ -106,18 +109,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: Stitch.outlineVariant,
     paddingBottom: 8,
-  },
-  rowActive: {
-    borderBottomColor: Cinema.primary,
   },
   rowError: {
     borderBottomColor: Stitch.error,
   },
   input: {
     flex: 1,
-    color: Cinema.textPrimary,
     fontSize: FontSize.base,
     lineHeight: 24,
     paddingVertical: 0,

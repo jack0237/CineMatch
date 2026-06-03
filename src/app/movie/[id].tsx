@@ -1,18 +1,20 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Cinema, FontSize, Spacing } from '@/constants/theme';
+import { FontSize, Spacing } from '@/constants/theme';
+import { useColors } from '@/hooks/use-theme';
 
 export default function MovieDetailScreen() {
+  const C = useColors();
   const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
 
   return (
     <>
       <Stack.Screen options={{ title: title ?? `Film #${id}` }} />
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: C.bg }]}>
         <View style={styles.content}>
-          <Text style={styles.title}>{title ?? `Film #${id}`}</Text>
-          <Text style={styles.subtitle}>Issues #15 #36 #16 #17</Text>
+          <Text style={[styles.title, { color: C.textPrimary }]}>{title ?? `Film #${id}`}</Text>
+          <Text style={[styles.subtitle, { color: C.textMuted }]}>Issues #15 #36 #16 #17</Text>
         </View>
       </SafeAreaView>
     </>
@@ -20,7 +22,7 @@ export default function MovieDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Cinema.bg },
+  container: { flex: 1 },
   content: {
     flex: 1,
     alignItems: 'center',
@@ -28,6 +30,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing['2xl'],
     gap: 8,
   },
-  title: { color: Cinema.textPrimary, fontSize: FontSize['2xl'], fontWeight: '700', textAlign: 'center' },
-  subtitle: { color: Cinema.textMuted, fontSize: FontSize.sm },
+  title: { fontSize: FontSize['2xl'], fontWeight: '700', textAlign: 'center' },
+  subtitle: { fontSize: FontSize.sm },
 });

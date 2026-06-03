@@ -120,6 +120,64 @@ export const Cinema = {
   tabBarInactive: Stitch.outlineVariant,        // #494454
 } as const;
 
+// ── Cinema light palette — light-mode equivalent of Cinema ────────────────────
+
+export const CinemaLight = {
+  // Backgrounds
+  bg:              '#F5F5F7',
+  bgAlt:           '#EBEBF0',
+  surface:         '#FFFFFF',
+  surfaceElevated: '#F2F2F7',
+  chip:            '#E5E5EA',
+  surfaceHighest:  '#D1D1D6',
+
+  // Brand — primary violet (darker for light mode)
+  primary:         Stitch.inversePrimary,     // #6d3bd7
+  primaryDark:     '#5016c4',
+  primaryLight:    '#9b6ee7',
+  primaryDim:      'rgba(109,59,215,0.12)',
+
+  // Button gradient pair (same branding)
+  gradientFrom:    Stitch.primaryContainer,   // #a078ff
+  gradientTo:      Stitch.inversePrimary,     // #6d3bd7
+  onGradient:      '#FFFFFF',
+
+  // Ratings
+  gold:    '#B8860B',
+  goldDim: 'rgba(184,134,11,0.12)',
+
+  // Swipe feedback (darker for legibility on light bg)
+  like:    '#00875a',
+  likeDim: 'rgba(0,135,90,0.12)',
+  nope:    '#c0392b',
+  nopeDim: 'rgba(192,57,43,0.12)',
+
+  // Text
+  textPrimary:   '#0D0D0D',
+  textSecondary: '#636366',
+  textMuted:     '#8E8E93',
+  textDisabled:  '#C7C7CC',
+
+  // Borders & overlays
+  border:       '#D1D1D6',
+  borderLight:  '#8E8E93',
+  overlay:      'rgba(0,0,0,0.5)',
+  overlayLight: 'rgba(0,0,0,0.2)',
+
+  // Chips
+  chipActive:     Stitch.inversePrimary,  // #6d3bd7
+  chipText:       '#636366',
+  chipTextActive: '#FFFFFF',
+
+  // Tab bar
+  tabBar:         '#F5F5F7',
+  tabBarBorder:   '#E5E5EA',
+  tabBarActive:   Stitch.inversePrimary,  // #6d3bd7
+  tabBarInactive: '#8E8E93',
+} as const;
+
+export type CinemaPalette = typeof Cinema | typeof CinemaLight;
+
 // ── Theme-variant colors (used by ThemedText / ThemedView via useTheme()) ─────
 
 export const Colors = {

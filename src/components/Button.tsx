@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Cinema, FontSize, Radius, Spacing } from '@/constants/theme';
+import { useColors } from '@/hooks/use-theme';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -31,10 +32,11 @@ export function Button({
   disabled,
   ...rest
 }: ButtonProps) {
+  const C = useColors();
   const isGradient = variant === 'gradient';
   const isGhost    = variant === 'ghost';
   const isDisabled = disabled || loading;
-  const textColor  = isGhost ? Cinema.textSecondary : '#FFFFFF';
+  const textColor  = isGhost ? C.textSecondary : '#FFFFFF';
 
   const inner = loading ? (
     <ActivityIndicator color={textColor} size="small" />
@@ -72,7 +74,9 @@ export function Button({
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.base,
-        isGhost ? styles.ghost : styles.primary,
+        isGhost
+          ? [styles.ghost, { borderColor: C.border }]
+          : styles.primary,
         isDisabled && styles.disabled,
         pressed && !isDisabled && styles.pressed,
         style,
@@ -84,7 +88,6 @@ export function Button({
 }
 
 const styles = StyleSheet.create({
-  // Shared
   base: {
     height: 56,
     borderRadius: Radius.pill,
@@ -105,19 +108,15 @@ const styles = StyleSheet.create({
   disabled: { opacity: 0.5 },
   pressed:  { opacity: 0.85 },
 
-  // Solid primary (violet fill)
   primary: {
-    backgroundColor: Cinema.gradientFrom, // #a078ff
+    backgroundColor: Cinema.gradientFrom,
   },
 
-  // Ghost (transparent + border)
   ghost: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: Cinema.border,
   },
 
-  // Gradient variant wrapper
   gradientWrap: {
     borderRadius: Radius.pill,
     overflow: 'hidden',

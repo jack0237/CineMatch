@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { DarkTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import {
@@ -12,11 +12,13 @@ import {
 } from '@expo-google-fonts/sora';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthContext, useAuthState } from '@/hooks/useAuth';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const auth = useAuthState();
+  const scheme = useColorScheme();
 
   const [fontsLoaded] = useFonts({
     'Sora-Light':     Sora_300Light,
@@ -37,7 +39,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthContext.Provider value={auth}>
-        <ThemeProvider value={DarkTheme}>
+        <ThemeProvider value={scheme === 'light' ? DefaultTheme : DarkTheme}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="(auth)" />

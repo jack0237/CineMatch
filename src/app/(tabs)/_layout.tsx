@@ -1,22 +1,25 @@
 import { Tabs } from 'expo-router';
-import { Cinema, Fonts } from '@/constants/theme';
+import { Fonts } from '@/constants/theme';
 import { tabIcon } from '@/components/ui/TabIcon';
+import { useColors } from '@/hooks/use-theme';
 
 export default function TabsLayout() {
+  const C = useColors();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: 'rgba(19, 19, 19, 0.92)',
-          borderTopColor: 'rgba(255, 255, 255, 0.08)',
+          backgroundColor: C.tabBar,
+          borderTopColor: C.tabBarBorder,
           borderTopWidth: 1,
           height: 68,
           paddingBottom: 10,
           paddingTop: 6,
         },
-        tabBarActiveTintColor: Cinema.primary,
-        tabBarInactiveTintColor: Cinema.textDisabled,
+        tabBarActiveTintColor: C.primary,
+        tabBarInactiveTintColor: C.textDisabled,
         tabBarLabelStyle: {
           fontFamily: Fonts.semibold,
           fontSize: 10,

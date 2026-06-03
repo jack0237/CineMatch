@@ -12,10 +12,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { Cinema, FontSize, Spacing, Stitch } from '@/constants/theme';
+import { FontSize, Spacing, Stitch } from '@/constants/theme';
+import { useColors } from '@/hooks/use-theme';
 import { supabase } from '@/services/supabase';
 
 export default function ForgotPasswordScreen() {
+  const C = useColors();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,24 +41,24 @@ export default function ForgotPasswordScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: C.bg }]}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
 
         {/* Back button */}
         <Pressable style={styles.back} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={24} color={Cinema.textPrimary} />
+          <Ionicons name="chevron-back" size={24} color={C.textPrimary} />
         </Pressable>
 
         <View style={styles.content}>
           {sent ? (
             <View style={styles.sentContainer}>
-              <View style={styles.sentIconWrap}>
-                <Ionicons name="mail-outline" size={36} color={Cinema.primary} />
+              <View style={[styles.sentIconWrap, { backgroundColor: C.primaryDim }]}>
+                <Ionicons name="mail-outline" size={36} color={C.primary} />
               </View>
-              <Text style={styles.title}>Email envoyé</Text>
-              <Text style={styles.subtitle}>
+              <Text style={[styles.title, { color: C.textPrimary }]}>Email envoyé</Text>
+              <Text style={[styles.subtitle, { color: C.textSecondary }]}>
                 {"Vérifie ta boîte mail.\nClique sur le lien pour réinitialiser ton mot de passe."}
               </Text>
               <Button
@@ -69,8 +71,8 @@ export default function ForgotPasswordScreen() {
             </View>
           ) : (
             <>
-              <Text style={styles.title}>Mot de passe oublié</Text>
-              <Text style={styles.subtitle}>
+              <Text style={[styles.title, { color: C.textPrimary }]}>Mot de passe oublié</Text>
+              <Text style={[styles.subtitle, { color: C.textSecondary }]}>
                 Saisis ton email et nous t'enverrons un lien de réinitialisation.
               </Text>
 
@@ -98,7 +100,7 @@ export default function ForgotPasswordScreen() {
               />
 
               <Pressable style={styles.backToLogin} onPress={() => router.back()}>
-                <Text style={styles.backToLoginText}>Retour à la connexion</Text>
+                <Text style={[styles.backToLoginText, { color: C.primary }]}>Retour à la connexion</Text>
               </Pressable>
             </>
           )}
@@ -110,7 +112,7 @@ export default function ForgotPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Cinema.bg },
+  safe: { flex: 1 },
   flex: { flex: 1 },
   back: {
     padding: Spacing.lg,
@@ -123,14 +125,12 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing['2xl'],
   },
   title: {
-    color: Cinema.textPrimary,
     fontSize: FontSize['3xl'],
     fontFamily: 'Sora-Bold',
     letterSpacing: -0.5,
     marginBottom: Spacing.md,
   },
   subtitle: {
-    color: Cinema.textSecondary,
     fontSize: FontSize.base,
     lineHeight: 24,
     marginBottom: Spacing.xl,
@@ -140,9 +140,8 @@ const styles = StyleSheet.create({
   spacer: { flex: 1, minHeight: Spacing['3xl'] },
   btn: { marginBottom: Spacing.md },
   backToLogin: { alignItems: 'center', paddingVertical: Spacing.md },
-  backToLoginText: { color: Cinema.primary, fontSize: FontSize.sm, fontWeight: '500' },
+  backToLoginText: { fontSize: FontSize.sm, fontWeight: '500' },
 
-  // Success state
   sentContainer: {
     flex: 1,
     alignItems: 'center',
@@ -153,7 +152,6 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Cinema.primaryDim,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,

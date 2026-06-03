@@ -45,7 +45,8 @@
       "Bash(node -e \"const p = require\\('./package.json'\\); const deps = {...p.dependencies, ...p.devDependencies}; console.log\\('expo-font:', deps['expo-font'] || 'ABSENT'\\); console.log\\('@expo-google-fonts/sora:', deps['@expo-google-fonts/sora'] || 'ABSENT'\\);\")",
       "Bash(node -e \"const p = require\\('./package.json'\\); const deps = {...p.dependencies, ...p.devDependencies}; ['expo-font','@expo-google-fonts/sora','expo-linear-gradient','@expo/vector-icons'].forEach\\(k => console.log\\(k + ':', deps[k] || 'ABSENT'\\)\\);\")",
       "Bash(grep -v \"//\\\\|*\")",
-      "Bash(dir .env*)"
+      "Bash(dir .env*)",
+      "Bash(git commit -m 'polish: align swipe UI with Stitch mockup *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Wilfreid\\.claude\\projects\\c--Users-Wilfreid-Documents-GitHub-CineMatch\\memory"
