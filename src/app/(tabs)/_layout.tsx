@@ -60,10 +60,13 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* History screen kept as route but hidden from the tab bar */}
+      {/* History: hidden from tab bar, tab bar also hidden when active */}
       <Tabs.Screen
         name="history"
-        options={{ href: null }}
+        options={{
+          href: null,
+          tabBarStyle: { display: 'none' },
+        }}
       />
     </Tabs>
   );
