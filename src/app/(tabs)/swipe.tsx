@@ -21,7 +21,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { SwipeCard } from '@/components/SwipeCard';
-import { Cinema, FontSize, Radius, Spacing } from '@/constants/theme';
+import { FontSize, Radius, Spacing } from '@/constants/theme';
+import { useColors } from '@/hooks/use-theme';
 import { useAuth } from '@/hooks/useAuth';
 import { getPopularMovies } from '@/services/tmdb';
 import { getSwipedMovieIds, saveSwipe } from '@/services/swipe';
@@ -33,6 +34,7 @@ const CARD_HEIGHT = Dimensions.get('window').height * 0.55;
 const STACK_SIZE = 3;
 
 export default function SwipeScreen() {
+  const C = useColors();
   const { user } = useAuth();
   const router = useRouter();
   const [deck, setDeck] = useState<Movie[]>([]);
@@ -45,7 +47,6 @@ export default function SwipeScreen() {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
 
-  // Press state — merge with swipe progress for unified animation
   const isLikePressed = useSharedValue(0);
   const isNopePressed = useSharedValue(0);
 
@@ -54,9 +55,9 @@ export default function SwipeScreen() {
     const swipeProgress = interpolate(translateX.value, [0, SWIPE_THRESHOLD], [0, 1], 'clamp');
     const progress = Math.max(swipeProgress, isLikePressed.value);
     return {
-      transform: [{ scale: interpolate(progress, [0, 1], [1, 1.18]) }],
-      backgroundColor: interpolateColor(progress, [0, 1], [Cinema.surfaceElevated, Cinema.likeDim]),
-      borderColor: interpolateColor(progress, [0, 1], [Cinema.border, Cinema.like]),
+      transform: [{ scale: interpolate(progress, [0, 1], [1, 1.15]) }],
+      backgroundColor: interpolateColor(progress, [0, 1], ['rgba(42,42,42,0.5)', C.likeDim]),
+      borderColor: interpolateColor(progress, [0, 1], ['rgba(255,255,255,0.1)', C.like]),
     };
   });
 
@@ -70,9 +71,9 @@ export default function SwipeScreen() {
     const swipeProgress = interpolate(translateX.value, [-SWIPE_THRESHOLD, 0], [1, 0], 'clamp');
     const progress = Math.max(swipeProgress, isNopePressed.value);
     return {
-      transform: [{ scale: interpolate(progress, [0, 1], [1, 1.18]) }],
-      backgroundColor: interpolateColor(progress, [0, 1], [Cinema.surfaceElevated, Cinema.nopeDim]),
-      borderColor: interpolateColor(progress, [0, 1], [Cinema.border, Cinema.nope]),
+      transform: [{ scale: interpolate(progress, [0, 1], [1, 1.15]) }],
+      backgroundColor: interpolateColor(progress, [0, 1], ['rgba(42,42,42,0.5)', C.nopeDim]),
+      borderColor: interpolateColor(progress, [0, 1], ['rgba(255,255,255,0.1)', C.nope]),
     };
   });
 
@@ -166,19 +167,21 @@ export default function SwipeScreen() {
   // ── Render ─────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <SafeAreaView style={styles.centered}>
-        <ActivityIndicator size="large" color={Cinema.primary} />
-        <Text style={styles.loadingText}>Chargement des films…</Text>
+      <SafeAreaView style={[styles.centered, { backgroundColor: C.bg }]}>
+        <ActivityIndicator size="large" color={C.primary} />
+        <Text style={[styles.loadingText, { color: C.textSecondary }]}>Chargement des films…</Text>
       </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView style={styles.centered}>
-        <Ionicons name="wifi-outline" size={48} color={Cinema.textMuted} />
-        <Text style={styles.errorText}>{error}</Text>
-        <Pressable onPress={() => { setError(''); loadMovies(); }} style={styles.retryBtn}>
+      <SafeAreaView style={[styles.centered, { backgroundColor: C.bg }]}>
+        <Ionicons name="wifi-outline" size={48} color={C.textMuted} />
+        <Text style={[styles.errorText, { color: C.textSecondary }]}>{error}</Text>
+        <Pressable
+          onPress={() => { setError(''); loadMovies(); }}
+          style={[styles.retryBtn, { backgroundColor: C.primary }]}>
           <Text style={styles.retryText}>Réessayer</Text>
         </Pressable>
       </SafeAreaView>
@@ -187,20 +190,20 @@ export default function SwipeScreen() {
 
   if (deck.length === 0) {
     return (
-      <SafeAreaView style={styles.centered}>
+      <SafeAreaView style={[styles.centered, { backgroundColor: C.bg }]}>
         <Text style={styles.emptyEmoji}>🎬</Text>
-        <Text style={styles.emptyTitle}>Vous avez tout vu !</Text>
-        <Text style={styles.emptySubtitle}>Revenez demain pour de nouveaux films.</Text>
+        <Text style={[styles.emptyTitle, { color: C.textPrimary }]}>Vous avez tout vu !</Text>
+        <Text style={[styles.emptySubtitle, { color: C.textSecondary }]}>Revenez demain pour de nouveaux films.</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: C.bg }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>CineMatch</Text>
-        <Ionicons name="options-outline" size={24} color={Cinema.textPrimary} />
+        <Text style={[styles.headerTitle, { color: C.primary }]}>CineMatch</Text>
+        <Ionicons name="options-outline" size={24} color={C.textPrimary} />
       </View>
 
       {/* Card stack */}
@@ -229,21 +232,21 @@ export default function SwipeScreen() {
           onPressIn={() => { isNopePressed.value = withTiming(1, { duration: 120 }); }}
           onPressOut={() => { isNopePressed.value = withTiming(0, { duration: 200 }); }}>
           <Animated.View style={[styles.actionBtn, styles.actionBtnLg, nopeButtonStyle]}>
-            <Ionicons name="close" size={28} color={Cinema.textSecondary} />
+            <Ionicons name="close" size={28} color={C.textSecondary} />
             <Animated.View style={[StyleSheet.absoluteFill, styles.iconOverlay, nopeIconStyle]}>
-              <Ionicons name="close" size={28} color={Cinema.nope} />
+              <Ionicons name="close" size={28} color={C.nope} />
             </Animated.View>
           </Animated.View>
         </Pressable>
 
         {/* Info */}
         <Pressable
-          style={[styles.actionBtn, styles.actionBtnSm]}
+          style={styles.actionBtnInfo}
           onPress={() => {
             const movie = deck[0];
             if (movie) router.push({ pathname: '/movie/[id]', params: { id: movie.id, title: movie.title } });
           }}>
-          <Ionicons name="information-circle-outline" size={22} color={Cinema.textSecondary} />
+          <Ionicons name="information-circle-outline" size={22} color={C.textSecondary} />
         </Pressable>
 
         {/* Like */}
@@ -252,9 +255,9 @@ export default function SwipeScreen() {
           onPressIn={() => { isLikePressed.value = withTiming(1, { duration: 120 }); }}
           onPressOut={() => { isLikePressed.value = withTiming(0, { duration: 200 }); }}>
           <Animated.View style={[styles.actionBtn, styles.actionBtnLg, likeButtonStyle]}>
-            <Ionicons name="heart" size={28} color={Cinema.textSecondary} />
+            <Ionicons name="heart" size={28} color={C.textSecondary} />
             <Animated.View style={[StyleSheet.absoluteFill, styles.iconOverlay, likeIconStyle]}>
-              <Ionicons name="heart" size={28} color={Cinema.like} />
+              <Ionicons name="heart" size={28} color={C.like} />
             </Animated.View>
           </Animated.View>
         </Pressable>
@@ -264,7 +267,7 @@ export default function SwipeScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Cinema.bg },
+  safe: { flex: 1 },
 
   header: {
     flexDirection: 'row',
@@ -274,7 +277,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
   },
   headerTitle: {
-    color: Cinema.primary,
     fontSize: FontSize.xl,
     fontWeight: '700',
     letterSpacing: 0.3,
@@ -295,24 +297,30 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     paddingBottom: Spacing.xl,
   },
+  // Base for animated large buttons (nope/like) — bg/border set by useAnimatedStyle
   actionBtn: {
-    width: 60,
-    height: 60,
+    width: 64,
+    height: 64,
     borderRadius: Radius.pill,
-    backgroundColor: Cinema.surfaceElevated,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: Cinema.border,
     overflow: 'hidden',
   },
-  actionBtnSm: {
+  actionBtnLg: {
+    width: 64,
+    height: 64,
+  },
+  // Info button — static glassmorphic style (Stitch: w-12 h-12 bg-surface-container/50)
+  actionBtnInfo: {
     width: 48,
     height: 48,
-  },
-  actionBtnLg: {
-    width: 68,
-    height: 68,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    backgroundColor: 'rgba(32,31,31,0.5)',
+    borderColor: 'rgba(255,255,255,0.06)',
   },
   iconOverlay: {
     alignItems: 'center',
@@ -321,23 +329,21 @@ const styles = StyleSheet.create({
 
   centered: {
     flex: 1,
-    backgroundColor: Cinema.bg,
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.md,
     paddingHorizontal: Spacing['2xl'],
   },
-  loadingText: { color: Cinema.textSecondary, fontSize: FontSize.sm },
-  errorText: { color: Cinema.textSecondary, fontSize: FontSize.base, textAlign: 'center' },
+  loadingText: { fontSize: FontSize.sm },
+  errorText: { fontSize: FontSize.base, textAlign: 'center' },
   retryBtn: {
     marginTop: Spacing.sm,
-    backgroundColor: Cinema.primary,
     paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.md,
     borderRadius: Radius.pill,
   },
   retryText: { color: '#FFFFFF', fontWeight: '600' },
   emptyEmoji: { fontSize: 56 },
-  emptyTitle: { color: Cinema.textPrimary, fontSize: FontSize['2xl'], fontWeight: '700' },
-  emptySubtitle: { color: Cinema.textSecondary, fontSize: FontSize.base, textAlign: 'center' },
+  emptyTitle: { fontSize: FontSize['2xl'], fontWeight: '700' },
+  emptySubtitle: { fontSize: FontSize.base, textAlign: 'center' },
 });
