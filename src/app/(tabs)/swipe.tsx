@@ -210,8 +210,12 @@ export default function SwipeScreen() {
       {/* Action buttons (Stitch: X, ℹ️, ❤️) */}
       <View style={styles.actions}>
         {/* Nope */}
-        <Pressable style={[styles.actionBtn, styles.actionBtnNope]} onPress={() => pressSwipe('dislike')}>
-          <Ionicons name="close" size={28} color={Cinema.nope} />
+        <Pressable
+          style={({ pressed }) => [styles.actionBtn, styles.actionBtnLg, pressed && styles.actionBtnNope]}
+          onPress={() => pressSwipe('dislike')}>
+          {({ pressed }) => (
+            <Ionicons name="close" size={28} color={pressed ? Cinema.nope : Cinema.textSecondary} />
+          )}
         </Pressable>
 
         {/* Info — navigate to detail */}
@@ -225,8 +229,12 @@ export default function SwipeScreen() {
         </Pressable>
 
         {/* Like */}
-        <Pressable style={[styles.actionBtn, styles.actionBtnLike]} onPress={() => pressSwipe('like')}>
-          <Ionicons name="heart" size={28} color={Cinema.like} />
+        <Pressable
+          style={({ pressed }) => [styles.actionBtn, styles.actionBtnLg, pressed && styles.actionBtnLike]}
+          onPress={() => pressSwipe('like')}>
+          {({ pressed }) => (
+            <Ionicons name="heart" size={28} color={pressed ? Cinema.like : Cinema.textSecondary} />
+          )}
         </Pressable>
       </View>
     </SafeAreaView>
@@ -282,15 +290,15 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
   },
-  actionBtnNope: {
+  actionBtnLg: {
     width: 68,
     height: 68,
+  },
+  actionBtnNope: {
     backgroundColor: Cinema.nopeDim,
     borderColor: Cinema.nope,
   },
   actionBtnLike: {
-    width: 68,
-    height: 68,
     backgroundColor: Cinema.likeDim,
     borderColor: Cinema.like,
   },
