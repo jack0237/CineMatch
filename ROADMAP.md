@@ -31,10 +31,10 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 
 > Parallélisable une fois l'auth en place.
 
-- [ ] [#7](https://github.com/jack0237/CineMatch/issues/7) — Service TMDB (`src/services/tmdb.ts`) — tous les endpoints
-- [ ] [#8](https://github.com/jack0237/CineMatch/issues/8) — Navigation par onglets (4 tabs : Swipe, Matches, Recherche, Profile)
-- [ ] [#32](https://github.com/jack0237/CineMatch/issues/32) — Écran Profile (4ème onglet + stats + déconnexion)
-- [ ] [#9](https://github.com/jack0237/CineMatch/issues/9) — Navigation Stack pour la fiche film (`movie/[id]`)
+- [x] [#7](https://github.com/jack0237/CineMatch/issues/7) — Service TMDB (`src/services/tmdb.ts`) — tous les endpoints
+- [x] [#8](https://github.com/jack0237/CineMatch/issues/8) — Navigation par onglets (4 tabs : Swipe, Matches, Recherche, Profile)
+- [x] [#32](https://github.com/jack0237/CineMatch/issues/32) — Écran Profile (4ème onglet + stats + déconnexion)
+- [x] [#9](https://github.com/jack0237/CineMatch/issues/9) — Navigation Stack pour la fiche film (`movie/[id]`)
 
 ---
 
@@ -42,11 +42,11 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 
 > Feature principale de l'app — la plus technique.
 
-- [ ] [#10](https://github.com/jack0237/CineMatch/issues/10) — SwipeCard UI (poster, titre, année, note)
-- [ ] [#11](https://github.com/jack0237/CineMatch/issues/11) — Gestes swipe gauche/droite (Gesture Handler + Reanimated)
-- [ ] [#34](https://github.com/jack0237/CineMatch/issues/34) — SwipeCard fidélité maquette (boutons ✗/❤️, overlays, chips genres)
-- [ ] [#12](https://github.com/jack0237/CineMatch/issues/12) — Sauvegarder les swipes dans Supabase
-- [ ] [#13](https://github.com/jack0237/CineMatch/issues/13) — Pagination TMDB (charger plus de films)
+- [x] [#10](https://github.com/jack0237/CineMatch/issues/10) — SwipeCard UI (poster, titre, année, note)
+- [x] [#11](https://github.com/jack0237/CineMatch/issues/11) — Gestes swipe gauche/droite (Gesture Handler + Reanimated)
+- [x] [#34](https://github.com/jack0237/CineMatch/issues/34) — SwipeCard fidélité maquette (boutons ✗/❤️, overlays, chips genres)
+- [x] [#12](https://github.com/jack0237/CineMatch/issues/12) — Sauvegarder les swipes dans Supabase
+- [x] [#13](https://github.com/jack0237/CineMatch/issues/13) — Pagination TMDB (charger plus de films)
 
 ---
 
@@ -102,11 +102,11 @@ Chaque issue est liée à son ticket GitHub : `#N`.
 | ------------- | ------ | ------ | --------- |
 | Fondations    | 4      | 4      | 0         |
 | Auth          | 4      | 4      | 0         |
-| API/Nav       | 4      | 0      | 4         |
-| Swipe         | 5      | 0      | 5         |
+| API/Nav       | 4      | 4      | 0         |
+| Swipe         | 5      | 5      | 0         |
 | Matches/Search| 4      | 0      | 4         |
 | Fiche film    | 4      | 0      | 4         |
 | UX Polish     | 6      | 0      | 6         |
 | Bonus         | 3      | 0      | 3         |
 | Livraison     | 4      | 0      | 4         |
-| **Total**     | **38** | **8**  | **30**    |
+| **Total**     | **38** | **17** | **21**    |
