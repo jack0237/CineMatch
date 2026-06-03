@@ -200,6 +200,7 @@ export default function HistoryScreen() {
         </View>
       ) : (
         <FlatList<SwipeHistory>
+          style={styles.list}
           data={displayed}
           keyExtractor={item => item.id}
           renderItem={({ item }) => (
@@ -238,6 +239,7 @@ const styles = StyleSheet.create({
   chipsContent: { paddingHorizontal: H_PAD, paddingVertical: Spacing.md, gap: 12 },
   chip: { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: Radius.pill, borderWidth: 1 },
   chipLabel: { fontFamily: Fonts.semibold, fontSize: FontSize.sm, letterSpacing: 0.7 },
+  list: { flex: 1 },
   listContent: { paddingHorizontal: H_PAD, paddingBottom: 40, gap: 16 },
   card: { flexDirection: 'row', alignItems: 'center', gap: Spacing.lg, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 24, padding: 12 },
   cardPressed: { backgroundColor: 'rgba(255,255,255,0.07)' },
