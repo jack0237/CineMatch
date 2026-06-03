@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@100;300;400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "secondary-container": "#00a572",
+                  "surface-variant": "#353534",
+                  "on-tertiary-container": "#5c0008",
+                  "surface": "#131313",
+                  "on-surface": "#e5e2e1",
+                  "on-secondary": "#003824",
+                  "tertiary-container": "#ff5451",
+                  "on-error": "#690005",
+                  "on-secondary-fixed": "#002113",
+                  "surface-tint": "#d0bcff",
+                  "on-surface-variant": "#cbc3d7",
+                  "surface-bright": "#3a3939",
+                  "tertiary-fixed": "#ffdad7",
+                  "error": "#ffb4ab",
+                  "secondary-fixed": "#6ffbbe",
+                  "surface-container-low": "#1c1b1b",
+                  "surface-dim": "#131313",
+                  "outline-variant": "#494454",
+                  "inverse-primary": "#6d3bd7",
+                  "on-tertiary-fixed": "#410004",
+                  "primary": "#d0bcff",
+                  "on-secondary-fixed-variant": "#005236",
+                  "background": "#131313",
+                  "primary-container": "#a078ff",
+                  "on-error-container": "#ffdad6",
+                  "surface-container-lowest": "#0e0e0e",
+                  "on-primary": "#3c0091",
+                  "outline": "#958ea0",
+                  "on-tertiary": "#68000a",
+                  "on-background": "#e5e2e1",
+                  "on-primary-container": "#340080",
+                  "inverse-surface": "#e5e2e1",
+                  "tertiary-fixed-dim": "#ffb3ad",
+                  "surface-container": "#201f1f",
+                  "tertiary": "#ffb3ad",
+                  "primary-fixed": "#e9ddff",
+                  "secondary": "#4edea3",
+                  "on-primary-fixed": "#23005c",
+                  "surface-container-high": "#2a2a2a",
+                  "error-container": "#93000a",
+                  "surface-container-highest": "#353534",
+                  "on-tertiary-fixed-variant": "#930013",
+                  "secondary-fixed-dim": "#4edea3",
+                  "on-primary-fixed-variant": "#5516be",
+                  "on-secondary-container": "#00311f",
+                  "primary-fixed-dim": "#d0bcff",
+                  "inverse-on-surface": "#313030"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "stack-offset": "12px",
+                  "safe-area-top": "44px",
+                  "margin-right": "30px",
+                  "gutter": "16px",
+                  "safe-area-bottom": "34px",
+                  "margin-left": "20px"
+          },
+          "fontFamily": {
+                  "display-lg": ["Sora"],
+                  "title-md": ["Sora"],
+                  "headline-lg": ["Sora"],
+                  "headline-lg-mobile": ["Sora"],
+                  "button-label": ["Sora"],
+                  "body-md": ["Sora"],
+                  "caption-uppercase": ["Sora"]
+          },
+          "fontSize": {
+                  "display-lg": ["48px", {"lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                  "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                  "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                  "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                  "button-label": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                  "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                  "caption-uppercase": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "300"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .glass-surface {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    }
+    .text-gradient-shadow {
+      text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    ::-webkit-scrollbar { display: none; }
+    .mask-fade-bottom {
+      mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden select-none">
+<!-- Fixed Top Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/10 backdrop-blur-xl border-b border-white/15 flex justify-between items-center px-margin-left pr-margin-right h-16">
+<button class="active:scale-95 transition-transform duration-200 text-primary">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">CineMatch</h1>
+<button class="active:scale-95 transition-transform duration-200 text-primary">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</header>
+<main class="relative min-h-screen pb-32">
+<!-- Hero Backdrop Section -->
+<div class="relative h-[751px] w-full overflow-hidden">
+<img alt="Dune backdrop" class="absolute inset-0 w-full h-full object-cover" data-alt="A cinematic, high-resolution movie backdrop of a vast, orange-hued desert landscape with colossal sand dunes under a hazy, spice-filled sky. In the far distance, a monolithic spaceship hangs silently. The lighting is dramatic and moody, capturing a sense of epic scale and ancient mystery. The aesthetic is inspired by contemporary sci-fi cinematography with a deep palette of ocher, charcoal, and primary violet accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLSYC5n8GUHgq5pt-dFjeCu9dHPP5Eg1zD68oAySSco0Kil0qEj-klHEAwdecOAEhBcJl4m5e9KtGj-1VJZAzYWFgdi4SAvsZdEsn5zopB6wzfaj29I-p7-e6t_yckgt9meHNz6JSUT7ltPR8TXIH3zdKA2lsj_Zj-7aLYARSI4kdMtNyHFBwcX4dERgEbBn-uvTyvBc1ccu31IbjDS0T-8RObeHRvi2zm44vak0xm1MPPjtr8yUffWoV7SOkbI4V8F50-Qm2xrQI"/>
+<!-- Gradient Overlays for Readability -->
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-black/30"></div>
+<!-- Title Overlay -->
+<div class="absolute bottom-0 left-0 px-margin-left mb-12">
+<h2 class="font-display-lg text-display-lg text-white tracking-tighter uppercase mb-4 text-gradient-shadow">DUNE</h2>
+<div class="flex flex-wrap gap-3 items-center">
+<span class="glass-surface px-4 py-1.5 rounded-full font-caption-uppercase text-caption-uppercase text-on-surface-variant">Sci-Fi</span>
+<span class="glass-surface px-4 py-1.5 rounded-full font-caption-uppercase text-caption-uppercase text-on-surface-variant">Epic</span>
+<div class="w-1.5 h-1.5 rounded-full bg-primary/40 mx-2"></div>
+<span class="font-button-label text-button-label text-primary-fixed-dim">2h 35m</span>
+</div>
+</div>
+</div>
+<!-- Movie Description & Cast -->
+<section class="mt-8 px-margin-left pr-margin-right space-y-10">
+<div class="space-y-4">
+<h3 class="font-button-label text-button-label text-on-surface-variant/60 uppercase tracking-widest">Synopsis</h3>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed max-w-2xl">
+          Paul Atreides, a brilliant and gifted young man born into a great destiny beyond his understanding, must travel to the most dangerous planet in the universe to ensure the future of his family and his people.
+        </p>
+</div>
+<!-- Cast Section -->
+<div class="space-y-6">
+<div class="flex justify-between items-end">
+<h3 class="font-button-label text-button-label text-on-surface-variant/60 uppercase tracking-widest">Cast</h3>
+<span class="font-caption-uppercase text-caption-uppercase text-primary">See all</span>
+</div>
+<!-- Cast Scroll Row -->
+<div class="flex overflow-x-auto gap-gutter pb-4 -ml-2 px-2 snap-x snap-mandatory">
+<!-- Actor 1 -->
+<div class="flex-shrink-0 flex flex-col items-center space-y-3 snap-start">
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20 p-1">
+<img alt="Timothée Chalamet" class="w-full h-full object-cover rounded-full" data-alt="A professional headshot of a young male actor with curly dark hair and sharp features, set against a dark, moody studio background. The lighting is cinematic with a soft rim light that highlights his silhouette, matching the premium and dramatic film industry aesthetic. The color palette is dark, with deep shadows and subtle highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEkTVuoGSkKPlLBIfAQG-80avPdz2A1qh76CO2V_3HRx8S226mKeXCsralgn6Yz_XN31-w_ssClWXdyH7RDg7gpgQ6IvMMNKN30uebRzmfQ5wRqUa9utehZJQHe8JhppJj1m3I9egcvq4PGd8hiGDsFLfOgHh0QjbAsegoILIEvFVfCtufH2SJA0D_NdnZoqUYeJO3ekGQbcSUUKLG1EVZ6rAZ9Vh30pavtfw6_ybI69OjqTKowXWUrYzw0eCuIHjA9zMwfj3-3vo"/>
+</div>
+<span class="font-caption-uppercase text-caption-uppercase text-on-surface text-center">Timothée<br/>Chalamet</span>
+</div>
+<!-- Actor 2 -->
+<div class="flex-shrink-0 flex flex-col items-center space-y-3 snap-start">
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-white/10 p-1">
+<img alt="Zendaya" class="w-full h-full object-cover rounded-full" data-alt="A high-fashion portrait of a young woman with a striking gaze and elegant features. The setting is a minimalist, dark environment with sophisticated side-lighting that creates a beautiful play of light and shadow on her face. The style is cinematic and premium, maintaining a moody atmosphere that aligns with the overall dark mode UI of the application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCS1MfOMHPdhNY_ifXRiQ_sENe9b3rQbi5E8h9vwDwylERXlMBbvsR47I5lL2jjgKIdVJpsH85ETdDgar-5D2KKmX9B7zA_DiMQw5ozH4DbHAgSDqfoa31JqVhLTg1MsTOd7qENPY0G7CpOEOTECP2T9uaec-w9CdMyq5FUx79i7S-_l8VKIHGJTdBZ7nyqFzc5cDXxkr1AvutGHFz02TLCE63ezd_PVA4basl_fkT1w6yjEQ7VPCGewv4QHFmQkvD3iqSYoenJGo"/>
+</div>
+<span class="font-caption-uppercase text-caption-uppercase text-on-surface text-center">Zendaya</span>
+</div>
+<!-- Actor 3 -->
+<div class="flex-shrink-0 flex flex-col items-center space-y-3 snap-start">
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-white/10 p-1">
+<img alt="Oscar Isaac" class="w-full h-full object-cover rounded-full" data-alt="A mature male actor with a salt-and-pepper beard and expressive eyes, captured in a moody cinematic portrait. The lighting is low-key, emphasizing the texture of his skin and the intensity of his expression. The background is a textured dark surface, reinforcing a high-fidelity independent cinema aesthetic with rich contrasts and professional composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBd2iKBGhT66xemjY9rzimIbcsn679hj2kxbF8uXknr_zNk8QtXBkIQYOPsaVSlXlZtJCXxeQ-PftxE4Oo4CHkzzhwITHD8WIasbQVTDv-iLzi2NqIiQ3vUlW3IWx896jMJ_w3oJHOi7nkXfP_OL2qtHAlnfUVLAfzY5hDDdbUq4nVdNd1Wq9NbriqeQusOpFtK1wLw_e_5T1VOct-Y6MuZtrKGuSqePfiHw9LpdPB9nAkOwWzzYXv4p9F-Bo4lJzKQnYRvUtYYiSc"/>
+</div>
+<span class="font-caption-uppercase text-caption-uppercase text-on-surface text-center">Oscar<br/>Isaac</span>
+</div>
+<!-- Actor 4 -->
+<div class="flex-shrink-0 flex flex-col items-center space-y-3 snap-start">
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-white/10 p-1">
+<img alt="Rebecca Ferguson" class="w-full h-full object-cover rounded-full" data-alt="A sophisticated portrait of a woman with a strong, contemplative expression. She is framed in a close-up shot with soft, cinematic lighting that wraps around her features, creating a sense of depth and mystery. The overall color grading is cool and muted, fitting perfectly into the moody, premium atmospheric design of the app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9oBVHK_53YCJ7d67V3FFD6BbQkbGk39_k42KM8ddOJJNbL5yBAtArt7hcOVSSkFivDQtW1j5R9LxXvtHd_l6sYn_a6-xzdiX_DkZrbhqaKdKxnTCFQqvzfdJnInrbreBjxzC_bO4eSvcUiAlfInsM6cBAFHACxOGlyLwQcxGRoKfMlDSv9CUUiFTqZzo7Pe48PG-BnuUnuySe1eSptPWvD9PIlZlGB4UyfT4INzimSNDGiqnNYXSJQW-N2IUy6HFuCPBJeWakNzU"/>
+</div>
+<span class="font-caption-uppercase text-caption-uppercase text-on-surface text-center">Rebecca<br/>Ferguson</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button: Watch Trailer -->
+<div class="fixed bottom-28 left-0 right-0 px-margin-left pr-margin-right z-40">
+<button class="w-full py-4 bg-primary text-on-primary font-button-label text-button-label rounded-full flex items-center justify-center gap-3 shadow-[0_20px_40px_rgba(208,188,255,0.25)] active:scale-95 transition-all duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+      Watch Trailer
+    </button>
+</div>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 w-full flex justify-around items-center h-20 pb-safe px-6 bg-surface/10 backdrop-blur-2xl border-t border-white/10 z-50 rounded-t-xl shadow-[0_-8px_32px_0_rgba(0,0,0,0.3)]">
+<!-- Active Destination: movie_filter -->
+<a class="flex flex-col items-center justify-center bg-primary/20 text-primary rounded-full p-3 shadow-[0_0_20px_rgba(208,188,255,0.3)] active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="movie_filter">movie_filter</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 p-3 hover:text-primary transition-colors active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 p-3 hover:text-primary transition-colors active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="local_activity">local_activity</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 p-3 hover:text-primary transition-colors active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</a>
+</nav>
+<script>
+    // Lightweight atmospheric interaction: Title subtle tilt effect
+    const hero = document.querySelector('.relative.h-\\[85vh\\]');
+    const title = document.querySelector('h2');
+    
+    hero.addEventListener('mousemove', (e) => {
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
+      const xPos = (clientX / innerWidth - 0.5) * 15;
+      const yPos = (clientY / innerHeight - 0.5) * 15;
+      
+      title.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    });
+
+    hero.addEventListener('mouseleave', () => {
+      title.style.transform = `translate(0, 0)`;
+    });
+  </script>
+</body></html>

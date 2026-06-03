@@ -169,7 +169,7 @@ export default function MovieDetailScreen() {
                   {cast.map((member, idx) => {
                     const avatarUri = profileUrl(member.profile_path) ?? undefined;
                     return (
-                      <View key={member.id} style={styles.castItem}>
+                      <View key={`${member.id}-${idx}`} style={styles.castItem}>
                         <View
                           style={[
                             styles.avatarRing,
