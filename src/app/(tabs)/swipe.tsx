@@ -12,7 +12,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
+  interpolate,
+  interpolateColor,
   runOnJS,
+  useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
@@ -27,7 +30,7 @@ import type { Movie } from '@/types/tmdb';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.35;
 const CARD_HEIGHT = Dimensions.get('window').height * 0.55;
-const STACK_SIZE = 3; // visible cards in stack
+const STACK_SIZE = 3;
 
 export default function SwipeScreen() {
   const { user } = useAuth();
@@ -39,9 +42,44 @@ export default function SwipeScreen() {
   const swipedIds = useRef<Set<number>>(new Set());
   const isFetching = useRef(false);
 
-  // Reanimated shared values for the top card
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+
+  // Press state — merge with swipe progress for unified animation
+  const isLikePressed = useSharedValue(0);
+  const isNopePressed = useSharedValue(0);
+
+  // ── Like button animation ──────────────────────────────────────────────────
+  const likeButtonStyle = useAnimatedStyle(() => {
+    const swipeProgress = interpolate(translateX.value, [0, SWIPE_THRESHOLD], [0, 1], 'clamp');
+    const progress = Math.max(swipeProgress, isLikePressed.value);
+    return {
+      transform: [{ scale: interpolate(progress, [0, 1], [1, 1.18]) }],
+      backgroundColor: interpolateColor(progress, [0, 1], [Cinema.surfaceElevated, Cinema.likeDim]),
+      borderColor: interpolateColor(progress, [0, 1], [Cinema.border, Cinema.like]),
+    };
+  });
+
+  const likeIconStyle = useAnimatedStyle(() => {
+    const swipeProgress = interpolate(translateX.value, [0, SWIPE_THRESHOLD * 0.6], [0, 1], 'clamp');
+    return { opacity: Math.max(swipeProgress, isLikePressed.value) };
+  });
+
+  // ── Nope button animation ──────────────────────────────────────────────────
+  const nopeButtonStyle = useAnimatedStyle(() => {
+    const swipeProgress = interpolate(translateX.value, [-SWIPE_THRESHOLD, 0], [1, 0], 'clamp');
+    const progress = Math.max(swipeProgress, isNopePressed.value);
+    return {
+      transform: [{ scale: interpolate(progress, [0, 1], [1, 1.18]) }],
+      backgroundColor: interpolateColor(progress, [0, 1], [Cinema.surfaceElevated, Cinema.nopeDim]),
+      borderColor: interpolateColor(progress, [0, 1], [Cinema.border, Cinema.nope]),
+    };
+  });
+
+  const nopeIconStyle = useAnimatedStyle(() => {
+    const swipeProgress = interpolate(translateX.value, [-SWIPE_THRESHOLD * 0.6, 0], [1, 0], 'clamp');
+    return { opacity: Math.max(swipeProgress, isNopePressed.value) };
+  });
 
   // ── Load movies ────────────────────────────────────────────────────────────
   const loadMovies = useCallback(async () => {
@@ -66,7 +104,7 @@ export default function SwipeScreen() {
         const ids = await getSwipedMovieIds(user.id);
         swipedIds.current = new Set(ids);
       } catch {
-        // non-blocking — worst case, user sees already-swiped films
+        // non-blocking
       }
       await loadMovies();
       setLoading(false);
@@ -74,11 +112,8 @@ export default function SwipeScreen() {
     init();
   }, [user, loadMovies]);
 
-  // Preload next page when stack is running low
   useEffect(() => {
-    if (!loading && deck.length <= STACK_SIZE + 1) {
-      loadMovies();
-    }
+    if (!loading && deck.length <= STACK_SIZE + 1) loadMovies();
   }, [deck.length, loading, loadMovies]);
 
   // ── Swipe action ───────────────────────────────────────────────────────────
@@ -86,18 +121,14 @@ export default function SwipeScreen() {
     (action: 'like' | 'dislike') => {
       const movie = deck[0];
       if (!movie || !user) return;
-
       swipedIds.current.add(movie.id);
       setDeck((prev) => prev.slice(1));
-
-      saveSwipe(user.id, movie, action).catch(() => {
-        // silent — do not block UX on network error
-      });
+      saveSwipe(user.id, movie, action).catch(() => {});
     },
     [deck, user],
   );
 
-  // ── Pan gesture (Stitch: swipe left/right with rotation) ──────────────────
+  // ── Pan gesture ────────────────────────────────────────────────────────────
   const gesture = Gesture.Pan()
     .onUpdate((e) => {
       translateX.value = e.translationX;
@@ -105,21 +136,18 @@ export default function SwipeScreen() {
     })
     .onEnd((e) => {
       if (e.translationX > SWIPE_THRESHOLD) {
-        // Like — fly right
         translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 280 }, () => {
           translateX.value = 0;
           translateY.value = 0;
           runOnJS(handleSwipe)('like');
         });
       } else if (e.translationX < -SWIPE_THRESHOLD) {
-        // Dislike — fly left
         translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 280 }, () => {
           translateX.value = 0;
           translateY.value = 0;
           runOnJS(handleSwipe)('dislike');
         });
       } else {
-        // Snap back
         translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
         translateY.value = withSpring(0, { damping: 20, stiffness: 200 });
       }
@@ -169,7 +197,7 @@ export default function SwipeScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Header — "CineMatch" + filter icon (Stitch) */}
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>CineMatch</Text>
         <Ionicons name="options-outline" size={24} color={Cinema.textPrimary} />
@@ -177,48 +205,38 @@ export default function SwipeScreen() {
 
       {/* Card stack */}
       <View style={styles.deckContainer}>
-        {/* Render up to STACK_SIZE cards, bottom first */}
         {deck
           .slice(0, STACK_SIZE)
           .reverse()
           .map((movie, revIdx) => {
-            const idx = STACK_SIZE - 1 - revIdx; // 2, 1, 0 (0 = top)
+            const idx = STACK_SIZE - 1 - revIdx;
             const isTop = idx === 0;
             return isTop ? (
               <GestureDetector key={movie.id} gesture={gesture}>
-                <SwipeCard
-                  movie={movie}
-                  translateX={translateX}
-                  translateY={translateY}
-                  isTop
-                  index={0}
-                />
+                <SwipeCard movie={movie} translateX={translateX} translateY={translateY} isTop index={0} />
               </GestureDetector>
             ) : (
-              <SwipeCard
-                key={movie.id}
-                movie={movie}
-                translateX={translateX}
-                translateY={translateY}
-                isTop={false}
-                index={idx}
-              />
+              <SwipeCard key={movie.id} movie={movie} translateX={translateX} translateY={translateY} isTop={false} index={idx} />
             );
           })}
       </View>
 
-      {/* Action buttons (Stitch: X, ℹ️, ❤️) */}
+      {/* Action buttons */}
       <View style={styles.actions}>
         {/* Nope */}
         <Pressable
-          style={({ pressed }) => [styles.actionBtn, styles.actionBtnLg, pressed && styles.actionBtnNope]}
-          onPress={() => pressSwipe('dislike')}>
-          {({ pressed }) => (
-            <Ionicons name="close" size={28} color={pressed ? Cinema.nope : Cinema.textSecondary} />
-          )}
+          onPress={() => pressSwipe('dislike')}
+          onPressIn={() => { isNopePressed.value = withTiming(1, { duration: 120 }); }}
+          onPressOut={() => { isNopePressed.value = withTiming(0, { duration: 200 }); }}>
+          <Animated.View style={[styles.actionBtn, styles.actionBtnLg, nopeButtonStyle]}>
+            <Ionicons name="close" size={28} color={Cinema.textSecondary} />
+            <Animated.View style={[StyleSheet.absoluteFill, styles.iconOverlay, nopeIconStyle]}>
+              <Ionicons name="close" size={28} color={Cinema.nope} />
+            </Animated.View>
+          </Animated.View>
         </Pressable>
 
-        {/* Info — navigate to detail */}
+        {/* Info */}
         <Pressable
           style={[styles.actionBtn, styles.actionBtnSm]}
           onPress={() => {
@@ -230,11 +248,15 @@ export default function SwipeScreen() {
 
         {/* Like */}
         <Pressable
-          style={({ pressed }) => [styles.actionBtn, styles.actionBtnLg, pressed && styles.actionBtnLike]}
-          onPress={() => pressSwipe('like')}>
-          {({ pressed }) => (
-            <Ionicons name="heart" size={28} color={pressed ? Cinema.like : Cinema.textSecondary} />
-          )}
+          onPress={() => pressSwipe('like')}
+          onPressIn={() => { isLikePressed.value = withTiming(1, { duration: 120 }); }}
+          onPressOut={() => { isLikePressed.value = withTiming(0, { duration: 200 }); }}>
+          <Animated.View style={[styles.actionBtn, styles.actionBtnLg, likeButtonStyle]}>
+            <Ionicons name="heart" size={28} color={Cinema.textSecondary} />
+            <Animated.View style={[StyleSheet.absoluteFill, styles.iconOverlay, likeIconStyle]}>
+              <Ionicons name="heart" size={28} color={Cinema.like} />
+            </Animated.View>
+          </Animated.View>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -244,7 +266,6 @@ export default function SwipeScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Cinema.bg },
 
-  // Header (Stitch: "CineMatch" + filter icon)
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -259,7 +280,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  // Card deck
   deckContainer: {
     flex: 1,
     marginHorizontal: Spacing.lg,
@@ -267,7 +287,6 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT,
   },
 
-  // Action buttons (Stitch: X center ❤️)
   actions: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -285,6 +304,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: Cinema.border,
+    overflow: 'hidden',
   },
   actionBtnSm: {
     width: 48,
@@ -294,16 +314,11 @@ const styles = StyleSheet.create({
     width: 68,
     height: 68,
   },
-  actionBtnNope: {
-    backgroundColor: Cinema.nopeDim,
-    borderColor: Cinema.nope,
-  },
-  actionBtnLike: {
-    backgroundColor: Cinema.likeDim,
-    borderColor: Cinema.like,
+  iconOverlay: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
-  // States
   centered: {
     flex: 1,
     backgroundColor: Cinema.bg,
