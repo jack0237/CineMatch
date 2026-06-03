@@ -97,7 +97,7 @@ export default function SearchScreen() {
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <View style={[styles.header, { borderBottomColor: 'rgba(255,255,255,0.08)' }]}>
         <Text style={[styles.headerTitle, { color: C.primary }]}>CineMatch</Text>
-        <Pressable onPress={openFilter} hitSlop={8} style={styles.filterBtn}>
+        <Pressable onPress={() => setFilterVisible(true)} hitSlop={8} style={styles.filterBtn}>
           <Ionicons name="options-outline" size={22} color={C.primary} />
           {hasActiveFilters && (
             <View style={[styles.filterDot, { backgroundColor: Stitch.secondary }]} />
