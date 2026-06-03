@@ -1,5 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import type { ColorValue } from 'react-native';
+import { Cinema } from '@/constants/theme';
+
+type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
+
+function icon(base: IoniconName, active: IoniconName) {
+  return ({ color, focused }: { color: ColorValue; focused: boolean }) => (
+    <Ionicons name={focused ? active : base} size={24} color={color as string} />
+  );
+}
 
 export default function TabsLayout() {
   return (
@@ -7,58 +17,40 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#111111',
-          borderTopColor: '#2A2A2A',
+          backgroundColor: Cinema.tabBar,
+          borderTopColor: Cinema.border,
           borderTopWidth: 1,
+          height: 64,
+          paddingBottom: 8,
         },
-        tabBarActiveTintColor: '#FFFFFF',
-        tabBarInactiveTintColor: '#555555',
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
+        tabBarActiveTintColor: Cinema.tabBarActive,
+        tabBarInactiveTintColor: Cinema.tabBarInactive,
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
       }}>
+      {/* 1 — Swipe (clapperboard icon — matches Stitch) */}
       <Tabs.Screen
         name="swipe"
-        options={{
-          title: 'Swipe',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'film' : 'film-outline'} size={24} color={color as string} />
-          ),
-        }}
+        options={{ title: 'Swipe', tabBarIcon: icon('film-outline', 'film') }}
       />
+      {/* 2 — Matches (heart — matches Stitch) */}
       <Tabs.Screen
         name="matches"
-        options={{
-          title: 'Matches',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'heart' : 'heart-outline'} size={24} color={color as string} />
-          ),
-        }}
+        options={{ title: 'Matches', tabBarIcon: icon('heart-outline', 'heart') }}
       />
+      {/* 3 — Search (search icon — for evaluation) */}
       <Tabs.Screen
         name="search"
-        options={{
-          title: 'Recherche',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'search' : 'search-outline'} size={24} color={color as string} />
-          ),
-        }}
+        options={{ title: 'Recherche', tabBarIcon: icon('search-outline', 'search') }}
       />
+      {/* 4 — History (time/grid icon — matches Stitch 3rd tab) */}
       <Tabs.Screen
         name="history"
-        options={{
-          title: 'Historique',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'time' : 'time-outline'} size={24} color={color as string} />
-          ),
-        }}
+        options={{ title: 'Historique', tabBarIcon: icon('grid-outline', 'grid') }}
       />
+      {/* 5 — Profile (person — matches Stitch) */}
       <Tabs.Screen
         name="profile"
-        options={{
-          title: 'Profil',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'person' : 'person-outline'} size={24} color={color as string} />
-          ),
-        }}
+        options={{ title: 'Profil', tabBarIcon: icon('person-outline', 'person') }}
       />
     </Tabs>
   );
