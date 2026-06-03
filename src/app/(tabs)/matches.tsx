@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
+  FlatList,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,17 +14,21 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useDebounce } from 'use-debounce';
 import { FontSize, Fonts, Radius, Spacing, Stitch } from '@/constants/theme';
 import { useColors } from '@/hooks/use-theme';
 import { useAuth } from '@/hooks/useAuth';
 import { getLikedMovies, type SortMode } from '@/services/swipe';
+import { searchMovies } from '@/services/tmdb';
+import type { Movie } from '@/types/tmdb';
 import type { SwipeHistory } from '@/types/supabase';
 import { posterUrl } from '@/utils/format';
+import { SearchBar } from '@/components/SearchBar';
+import { MovieListItem } from '@/components/MovieListItem';
 
 const H_PAD = 20;
-const GAP = Spacing.lg; // 16
+const GAP = Spacing.lg;
 const CARD_WIDTH = (Dimensions.get('window').width - H_PAD * 2 - GAP) / 2;
-// Dot shown for movies liked in the last 7 days
 const RECENT_MS = 7 * 24 * 60 * 60 * 1000;
 
 const SORT_CHIPS: { label: string; value: SortMode }[] = [
@@ -35,6 +40,8 @@ const SORT_CHIPS: { label: string; value: SortMode }[] = [
 function isRecent(swipedAt: string): boolean {
   return Date.now() - new Date(swipedAt).getTime() < RECENT_MS;
 }
+
+// ── MatchCard ─────────────────────────────────────────────────────────────────
 
 interface MatchCardProps {
   item: SwipeHistory;
@@ -62,10 +69,7 @@ function MatchCard({ item, onPress }: MatchCardProps) {
         <View
           style={[
             styles.notifDot,
-            {
-              backgroundColor: Stitch.error,
-              shadowColor: Stitch.error,
-            },
+            { backgroundColor: Stitch.error, shadowColor: Stitch.error },
           ]}
         />
       )}
@@ -80,41 +84,79 @@ function MatchCard({ item, onPress }: MatchCardProps) {
         </Text>
         <View style={styles.cardMeta}>
           <Ionicons name="star" size={13} color={C.like} />
-          <Text style={[styles.cardMatch, { color: C.like }]}>
-            {matchPct}% Match
-          </Text>
+          <Text style={[styles.cardMatch, { color: C.like }]}>{matchPct}% Match</Text>
         </View>
       </View>
     </Pressable>
   );
 }
 
+// ── Separator for search results ─────────────────────────────────────────────
+
+function Separator({ color }: { color: string }) {
+  return <View style={[styles.separator, { backgroundColor: color }]} />;
+}
+
+// ── MatchesScreen ─────────────────────────────────────────────────────────────
+
 export default function MatchesScreen() {
   const C = useColors();
   const { user } = useAuth();
   const router = useRouter();
+
+  // ── Matches state ──────────────────────────────────────────────────────────
   const [sort, setSort] = useState<SortMode>('score');
   const [movies, setMovies] = useState<SwipeHistory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [loadingMatches, setLoadingMatches] = useState(true);
+  const [errorMatches, setErrorMatches] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
+  // ── Search state ───────────────────────────────────────────────────────────
+  const [query, setQuery] = useState('');
+  const [debouncedQuery] = useDebounce(query, 400);
+  const [searchResults, setSearchResults] = useState<Movie[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // ── Load liked movies ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!user) return;
-    setLoading(true);
-    setError('');
+    setLoadingMatches(true);
+    setErrorMatches('');
     getLikedMovies(user.id, sort)
       .then(setMovies)
-      .catch(() => setError('Impossible de charger tes matches.'))
-      .finally(() => setLoading(false));
+      .catch(() => setErrorMatches('Impossible de charger tes matches.'))
+      .finally(() => setLoadingMatches(false));
   }, [user?.id, sort, refreshKey]);
+
+  // ── Debounced search ───────────────────────────────────────────────────────
+  useEffect(() => {
+    const q = debouncedQuery.trim();
+    if (!q) {
+      setSearchResults([]);
+      return;
+    }
+    setIsSearching(true);
+    searchMovies(q)
+      .then(res => setSearchResults(res.results))
+      .catch(() => setSearchResults([]))
+      .finally(() => setIsSearching(false));
+  }, [debouncedQuery]);
+
+  // ── Derived ────────────────────────────────────────────────────────────────
+  const isSearchMode = query.trim().length > 0;
+  const isPending = isSearchMode && query !== debouncedQuery;
+  const showLoader = isSearchMode && (isPending || isSearching);
+  const showEmpty =
+    isSearchMode && !isPending && !isSearching &&
+    searchResults.length === 0 && debouncedQuery.trim().length > 0;
 
   const leftCol = movies.filter((_, i) => i % 2 === 0);
   const rightCol = movies.filter((_, i) => i % 2 !== 0);
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: C.bg }]} edges={['top']}>
-      {/* Header */}
+
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: C.primary }]}>CineMatch</Text>
         <Pressable
@@ -126,88 +168,130 @@ export default function MatchesScreen() {
         </Pressable>
       </View>
 
-      {/* Sort chips */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.chipsScroll}
-        contentContainerStyle={styles.chipsRow}
-      >
-        {SORT_CHIPS.map(chip => {
-          const active = sort === chip.value;
-          return (
-            <Pressable
-              key={chip.value}
-              onPress={() => setSort(chip.value)}
-              style={[
-                styles.chip,
-                {
-                  backgroundColor: active
-                    ? C.primary
-                    : 'rgba(255,255,255,0.08)',
-                  borderColor: active ? C.primary : 'rgba(255,255,255,0.12)',
-                },
-              ]}
-            >
-              <Text
+      {/* ── Sort chips — hidden while searching ───────────────────────────── */}
+      {!isSearchMode && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.chipsScroll}
+          contentContainerStyle={styles.chipsRow}
+        >
+          {SORT_CHIPS.map(chip => {
+            const active = sort === chip.value;
+            return (
+              <Pressable
+                key={chip.value}
+                onPress={() => setSort(chip.value)}
                 style={[
-                  styles.chipLabel,
-                  { color: active ? Stitch.onPrimary : C.textSecondary },
+                  styles.chip,
+                  {
+                    backgroundColor: active ? C.primary : 'rgba(255,255,255,0.08)',
+                    borderColor: active ? C.primary : 'rgba(255,255,255,0.12)',
+                  },
                 ]}
               >
-                {chip.label}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-
-      {/* Content */}
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={C.primary} size="large" />
-        </View>
-      ) : error ? (
-        <View style={styles.center}>
-          <Text style={[styles.feedbackText, { color: C.textMuted }]}>{error}</Text>
-        </View>
-      ) : movies.length === 0 ? (
-        <View style={styles.center}>
-          <Ionicons name="heart-outline" size={48} color={C.textDisabled} />
-          <Text style={[styles.emptyTitle, { color: C.textPrimary }]}>
-            Aucun match pour l'instant
-          </Text>
-          <Text style={[styles.feedbackText, { color: C.textMuted }]}>
-            Swipe des films pour les retrouver ici.
-          </Text>
-        </View>
-      ) : (
-        <ScrollView
-          style={styles.gridScroll}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.grid}
-        >
-          <View style={styles.columns}>
-            <View style={styles.column}>
-              {leftCol.map(item => (
-                <MatchCard
-                  key={item.id}
-                  item={item}
-                  onPress={() => router.push(`/movie/${item.movie_id}`)}
-                />
-              ))}
-            </View>
-            <View style={styles.column}>
-              {rightCol.map(item => (
-                <MatchCard
-                  key={item.id}
-                  item={item}
-                  onPress={() => router.push(`/movie/${item.movie_id}`)}
-                />
-              ))}
-            </View>
-          </View>
+                <Text
+                  style={[
+                    styles.chipLabel,
+                    { color: active ? Stitch.onPrimary : C.textSecondary },
+                  ]}
+                >
+                  {chip.label}
+                </Text>
+              </Pressable>
+            );
+          })}
         </ScrollView>
+      )}
+
+      {/* ── Search bar ─────────────────────────────────────────────────────── */}
+      <View style={styles.searchWrap}>
+        <SearchBar value={query} onChangeText={setQuery} />
+      </View>
+
+      {/* ── Content ────────────────────────────────────────────────────────── */}
+      {isSearchMode ? (
+        // ── Search results ─────────────────────────────────────────────────
+        showLoader ? (
+          <View style={styles.center}>
+            <ActivityIndicator color={C.primary} size="large" />
+          </View>
+        ) : showEmpty ? (
+          <View style={styles.center}>
+            <Ionicons name="film-outline" size={44} color={C.textDisabled} />
+            <Text style={[styles.emptyTitle, { color: C.textPrimary }]}>
+              Aucun film trouvé
+            </Text>
+            <Text style={[styles.feedbackText, { color: C.textMuted }]}>
+              pour &ldquo;{debouncedQuery}&rdquo;
+            </Text>
+          </View>
+        ) : (
+          <FlatList<Movie>
+            data={searchResults}
+            keyExtractor={item => String(item.id)}
+            renderItem={({ item }) => (
+              <MovieListItem
+                movie={item}
+                onPress={() => router.push(`/movie/${item.id}`)}
+              />
+            )}
+            ItemSeparatorComponent={() => <Separator color={C.border} />}
+            style={styles.searchList}
+            contentContainerStyle={styles.searchContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+          />
+        )
+      ) : (
+        // ── Matches grid ───────────────────────────────────────────────────
+        loadingMatches ? (
+          <View style={styles.center}>
+            <ActivityIndicator color={C.primary} size="large" />
+          </View>
+        ) : errorMatches ? (
+          <View style={styles.center}>
+            <Text style={[styles.feedbackText, { color: C.textMuted }]}>{errorMatches}</Text>
+          </View>
+        ) : movies.length === 0 ? (
+          <View style={styles.center}>
+            <Ionicons name="heart-outline" size={48} color={C.textDisabled} />
+            <Text style={[styles.emptyTitle, { color: C.textPrimary }]}>
+              Aucun match pour l&apos;instant
+            </Text>
+            <Text style={[styles.feedbackText, { color: C.textMuted }]}>
+              Swipe des films pour les retrouver ici.
+            </Text>
+          </View>
+        ) : (
+          <ScrollView
+            style={styles.gridScroll}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.grid}
+          >
+            <View style={styles.columns}>
+              <View style={styles.column}>
+                {leftCol.map(item => (
+                  <MatchCard
+                    key={item.id}
+                    item={item}
+                    onPress={() => router.push(`/movie/${item.movie_id}`)}
+                  />
+                ))}
+              </View>
+              <View style={styles.column}>
+                {rightCol.map(item => (
+                  <MatchCard
+                    key={item.id}
+                    item={item}
+                    onPress={() => router.push(`/movie/${item.movie_id}`)}
+                  />
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+        )
       )}
     </SafeAreaView>
   );
@@ -255,7 +339,24 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
 
-  // Grid
+  // Search bar wrapper
+  searchWrap: {
+    paddingHorizontal: H_PAD,
+    paddingBottom: Spacing.md,
+  },
+
+  // Search results
+  searchList: { flex: 1 },
+  searchContent: {
+    paddingHorizontal: H_PAD,
+    paddingBottom: 100,
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    marginLeft: H_PAD + 52 + Spacing.lg, // align with text, after poster
+  },
+
+  // Matches grid
   gridScroll: { flex: 1 },
   grid: {
     paddingHorizontal: H_PAD,
@@ -270,7 +371,7 @@ const styles = StyleSheet.create({
     gap: GAP,
   },
 
-  // Card
+  // MatchCard
   card: {
     width: CARD_WIDTH,
     borderRadius: 24,
@@ -278,9 +379,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.15)',
   },
-  cardPressed: {
-    transform: [{ scale: 0.97 }],
-  },
+  cardPressed: { transform: [{ scale: 0.97 }] },
   poster: {
     width: '100%',
     aspectRatio: 2 / 3,
@@ -323,7 +422,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  // Feedback states
+  // Feedback
   center: {
     flex: 1,
     alignItems: 'center',
