@@ -19,7 +19,7 @@ Application mobile (iOS, Android) - Evaluation React Native M1, SUP de Vinci. Su
 ### Required
 
 - [x] Auth via Supabase (sign up, sign in, sign out, password reset)
-- [ ] Swipe screen — poster, title, year, TMDB rating — swipe left (dislike) / right (like)
+- [x] Swipe screen — poster, title, year, TMDB rating — swipe left (dislike) / right (like)
 - [ ] Matches screen — liked movies sorted by TMDB rating, saved in Supabase
 - [ ] Movie detail — synopsis, runtime, genres, rating, top 5 cast, YouTube trailer link
 - [ ] Search — search bar with debounce
