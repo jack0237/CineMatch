@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   interpolate,
@@ -21,6 +20,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { SwipeCard } from '@/components/SwipeCard';
+import { MovieInfoSheet } from '@/components/MovieInfoSheet';
 import { FontSize, Radius, Spacing } from '@/constants/theme';
 import { useColors } from '@/hooks/use-theme';
 import { useAuth } from '@/hooks/useAuth';
@@ -42,8 +42,8 @@ const STACK_SIZE = 3;
 export default function SwipeScreen() {
   const C = useColors();
   const { user } = useAuth();
-  const router = useRouter();
   const [deck, setDeck] = useState<Movie[]>([]);
+  const [sheetMovie, setSheetMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filterVisible, setFilterVisible] = useState(false);
@@ -288,7 +288,7 @@ export default function SwipeScreen() {
           style={styles.actionBtnInfo}
           onPress={() => {
             const movie = deck[0];
-            if (movie) router.push({ pathname: '/movie/[id]', params: { id: movie.id, title: movie.title } });
+            if (deck[0]) setSheetMovie(deck[0]);
           }}>
           <Ionicons name="information-circle-outline" size={22} color={C.textSecondary} />
         </Pressable>
@@ -306,6 +306,9 @@ export default function SwipeScreen() {
           </Animated.View>
         </Pressable>
       </View>
+
+      {/* Movie info bottom sheet */}
+      <MovieInfoSheet movie={sheetMovie} onClose={() => setSheetMovie(null)} />
     </SafeAreaView>
   );
 }
