@@ -210,7 +210,7 @@ export default function SwipeScreen() {
       {/* Action buttons (Stitch: X, ℹ️, ❤️) */}
       <View style={styles.actions}>
         {/* Nope */}
-        <Pressable style={styles.actionBtn} onPress={() => pressSwipe('dislike')}>
+        <Pressable style={[styles.actionBtn, styles.actionBtnNope]} onPress={() => pressSwipe('dislike')}>
           <Ionicons name="close" size={28} color={Cinema.nope} />
         </Pressable>
 
@@ -282,10 +282,16 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
   },
+  actionBtnNope: {
+    width: 68,
+    height: 68,
+    backgroundColor: Cinema.nopeDim,
+    borderColor: Cinema.nope,
+  },
   actionBtnLike: {
     width: 68,
     height: 68,
-    backgroundColor: 'rgba(16,185,129,0.12)',
+    backgroundColor: Cinema.likeDim,
     borderColor: Cinema.like,
   },
 

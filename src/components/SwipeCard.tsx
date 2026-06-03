@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   interpolate,
@@ -12,7 +13,14 @@ import { formatRating, formatYear, posterUrl } from '@/utils/format';
 
 const CARD_BORDER_RADIUS = 20;
 
-// Overlays visible during drag
+const GENRE_NAMES: Record<number, string> = {
+  28: 'Action', 12: 'Aventure', 16: 'Animation', 35: 'Comédie',
+  80: 'Crime', 99: 'Documentaire', 18: 'Drame', 10751: 'Famille',
+  14: 'Fantastique', 36: 'Histoire', 27: 'Horreur', 10402: 'Musique',
+  9648: 'Mystère', 10749: 'Romance', 878: 'Science-Fiction',
+  10770: 'Téléfilm', 53: 'Thriller', 10752: 'Guerre', 37: 'Western',
+};
+
 interface OverlayProps {
   translateX: SharedValue<number>;
 }
@@ -23,7 +31,7 @@ function LikeOverlay({ translateX }: OverlayProps) {
   }));
   return (
     <Animated.View style={[StyleSheet.absoluteFill, styles.overlayLike, style]}>
-      <View style={styles.overlayBadge}>
+      <View style={styles.overlayBadgeLike}>
         <Text style={styles.overlayLikeText}>LIKE ✓</Text>
       </View>
     </Animated.View>
@@ -36,7 +44,7 @@ function NopeOverlay({ translateX }: OverlayProps) {
   }));
   return (
     <Animated.View style={[StyleSheet.absoluteFill, styles.overlayNope, style]}>
-      <View style={styles.overlayBadge}>
+      <View style={styles.overlayBadgeNope}>
         <Text style={styles.overlayNopeText}>NOPE ✗</Text>
       </View>
     </Animated.View>
@@ -48,7 +56,7 @@ interface SwipeCardProps {
   translateX: SharedValue<number>;
   translateY: SharedValue<number>;
   isTop: boolean;
-  index: number; // 0 = top, 1 = second, 2 = third
+  index: number;
 }
 
 export function SwipeCard({ movie, translateX, translateY, isTop, index }: SwipeCardProps) {
@@ -56,7 +64,6 @@ export function SwipeCard({ movie, translateX, translateY, isTop, index }: Swipe
   const year = formatYear(movie.release_date);
   const rating = formatRating(movie.vote_average);
 
-  // Stack effect: cards behind scale down and shift down
   const stackStyle = useAnimatedStyle(() => {
     if (isTop) {
       const rotate = interpolate(translateX.value, [-200, 0, 200], [-15, 0, 15], 'clamp');
@@ -87,6 +94,11 @@ export function SwipeCard({ movie, translateX, translateY, isTop, index }: Swipe
     };
   });
 
+  const genreNames = (movie.genre_ids ?? [])
+    .slice(0, 2)
+    .map((id) => GENRE_NAMES[id])
+    .filter(Boolean) as string[];
+
   return (
     <Animated.View style={[StyleSheet.absoluteFill, stackStyle]}>
       <View style={styles.card}>
@@ -98,25 +110,25 @@ export function SwipeCard({ movie, translateX, translateY, isTop, index }: Swipe
           transition={200}
         />
 
-        {/* Rating badge — top right (Stitch: "⭐ 8.4") */}
+        {/* Rating badge — top right (green star per Stitch) */}
         <View style={styles.ratingBadge}>
-          <Text style={styles.ratingStar}>⭐</Text>
+          <Ionicons name="star" size={11} color={Cinema.like} />
           <Text style={styles.ratingValue}>{rating}</Text>
         </View>
 
-        {/* Gradient overlay — bottom of poster */}
+        {/* Gradient overlay */}
         <LinearGradient
           colors={['transparent', 'rgba(13,13,13,0.7)', Cinema.bg]}
           locations={[0.4, 0.75, 1]}
           style={styles.gradient}
         />
 
-        {/* Genre chips overlaid on gradient (Stitch: "Sci-Fi", "Thriller") */}
-        {movie.genre_ids && movie.genre_ids.length > 0 && (
+        {/* Genre chips — real names, only for top card */}
+        {isTop && genreNames.length > 0 && (
           <View style={styles.chips}>
-            {movie.genre_ids.slice(0, 2).map((id) => (
-              <View key={id} style={styles.chip}>
-                <Text style={styles.chipText}>#{id}</Text>
+            {genreNames.map((name) => (
+              <View key={name} style={styles.chip}>
+                <Text style={styles.chipText}>{name}</Text>
               </View>
             ))}
           </View>
@@ -127,14 +139,16 @@ export function SwipeCard({ movie, translateX, translateY, isTop, index }: Swipe
         {isTop && <NopeOverlay translateX={translateX} />}
       </View>
 
-      {/* Info section below poster (Stitch: title, year, synopsis) */}
-      <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={1}>{movie.title}</Text>
-        <Text style={styles.meta}>{year}</Text>
-        {movie.overview ? (
-          <Text style={styles.overview} numberOfLines={2}>{movie.overview}</Text>
-        ) : null}
-      </View>
+      {/* Info below poster — only top card to avoid cluttering the stack */}
+      {isTop && (
+        <View style={styles.info}>
+          <Text style={styles.title} numberOfLines={1}>{movie.title}</Text>
+          <Text style={styles.meta}>{year}</Text>
+          {movie.overview ? (
+            <Text style={styles.overview} numberOfLines={2}>{movie.overview}</Text>
+          ) : null}
+        </View>
+      )}
     </Animated.View>
   );
 }
@@ -150,23 +164,27 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
   },
 
-  // Rating badge — top right corner (Stitch design)
+  // Rating badge — Stitch: green star + white bold text + dark bg + subtle green border
   ratingBadge: {
     position: 'absolute',
     top: Spacing.md,
     right: Spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
-    backgroundColor: 'rgba(0,0,0,0.55)',
+    gap: 4,
+    backgroundColor: 'rgba(0,0,0,0.65)',
     paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: Radius.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(78,222,163,0.45)',
   },
-  ratingStar: { fontSize: 11 },
-  ratingValue: { color: Cinema.gold, fontSize: FontSize.sm, fontWeight: '700' },
+  ratingValue: {
+    color: '#FFFFFF',
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+  },
 
-  // Gradient
   gradient: {
     position: 'absolute',
     bottom: 0,
@@ -175,7 +193,6 @@ const styles = StyleSheet.create({
     height: '55%',
   },
 
-  // Genre chips at bottom of poster (Stitch style)
   chips: {
     position: 'absolute',
     bottom: Spacing.md,
@@ -193,7 +210,6 @@ const styles = StyleSheet.create({
   },
   chipText: { color: Cinema.textPrimary, fontSize: 11, fontWeight: '500' },
 
-  // LIKE overlay (right side, green — Stitch MATCH! stamp)
   overlayLike: {
     alignItems: 'flex-start',
     justifyContent: 'center',
@@ -204,12 +220,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingRight: Spacing.xl,
   },
-  overlayBadge: {
+  overlayBadgeLike: {
     borderWidth: 3,
+    borderColor: Cinema.like,
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     transform: [{ rotate: '-15deg' }],
+  },
+  overlayBadgeNope: {
+    borderWidth: 3,
+    borderColor: Cinema.nope,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    transform: [{ rotate: '15deg' }],
   },
   overlayLikeText: {
     color: Cinema.like,
@@ -224,7 +249,6 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
 
-  // Info below card
   info: {
     paddingHorizontal: Spacing.sm,
     paddingTop: Spacing.md,
