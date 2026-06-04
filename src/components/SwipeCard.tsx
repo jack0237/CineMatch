@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,9 +17,6 @@ import { formatRating, formatYear, posterUrl } from '@/utils/format';
 
 const CARD_BORDER_RADIUS = 24;
 
-// Scale and offset that a card at index=1 (the "next" card) has at rest
-const BG_SCALE = 1 - 1 * 0.04; // 0.96
-const BG_TY = 1 * 10;           // 10px
 
 const GENRE_NAMES: Record<number, string> = {
   28: 'Action', 12: 'Aventure', 16: 'Animation', 35: 'Comédie',
@@ -65,23 +62,26 @@ interface SwipeCardProps {
   movie: Movie;
   translateX: SharedValue<number>;
   translateY: SharedValue<number>;
+  topCardOpacity: SharedValue<number>;
+  bgSwipeProgress: SharedValue<number>;
   isTop: boolean;
   index: number;
 }
 
-export function SwipeCard({ movie, translateX, translateY, isTop, index }: SwipeCardProps) {
+export function SwipeCard({ movie, translateX, translateY, topCardOpacity, bgSwipeProgress, isTop, index }: SwipeCardProps) {
   const C = useColors();
   const poster = posterUrl(movie.poster_path, 'w500');
   const year = formatYear(movie.release_date);
   const rating = formatRating(movie.vote_average);
 
-  // Animate the promotion from background card to top card.
-  // Starts at 1 if already top (first render), 0 if background — animates to 1 on promotion.
+  // promoteAnim drives only the info-section opacity fade-in on promotion.
+  // Card position/scale is handled separately to avoid worklet re-registration lag.
   const promoteAnim = useSharedValue(isTop ? 1 : 0);
   const wasTopRef = useRef(isTop);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isTop && !wasTopRef.current) {
+      promoteAnim.value = 0;
       promoteAnim.value = withSpring(1, { damping: 16, stiffness: 180 });
     } else if (!isTop) {
       promoteAnim.value = 0;
@@ -89,41 +89,32 @@ export function SwipeCard({ movie, translateX, translateY, isTop, index }: Swipe
     wasTopRef.current = isTop;
   }, [isTop]);
 
-  const stackStyle = useAnimatedStyle(() => {
-    if (isTop) {
-      const rotate = interpolate(translateX.value, [-200, 0, 200], [-15, 0, 15], 'clamp');
-      // Interpolate scale and vertical offset from background → top during promotion
-      const scale = interpolate(promoteAnim.value, [0, 1], [BG_SCALE, 1], 'clamp');
-      const ty = interpolate(promoteAnim.value, [0, 1], [BG_TY, translateY.value], 'clamp');
-      return {
-        transform: [
-          { translateX: translateX.value },
-          { translateY: ty },
-          { scale },
-          { rotate: `${rotate}deg` },
-        ],
-        zIndex: 10,
-      };
-    }
-    const scale = interpolate(
-      Math.abs(translateX.value),
-      [0, 150],
-      [1 - index * 0.04, 1 - (index - 1) * 0.04],
-      'clamp',
-    );
-    const ty = interpolate(
-      Math.abs(translateX.value),
-      [0, 150],
-      [index * 10, (index - 1) * 10],
-      'clamp',
-    );
+  // Two separate worklets — never read `isTop` inside a worklet to avoid the
+  // one-frame lag caused by Reanimated worklet re-registration when a JS closure changes.
+  const topCardStyle = useAnimatedStyle(() => {
+    const rotate = interpolate(translateX.value, [-200, 0, 200], [-15, 0, 15], 'clamp');
     return {
-      transform: [{ scale }, { translateY: ty }],
-      zIndex: 10 - index,
+      opacity: topCardOpacity.value,
+      transform: [
+        { translateX: translateX.value },
+        { translateY: translateY.value },
+        { rotate: `${rotate}deg` },
+      ],
+      zIndex: 10,
     };
   });
 
-  // Info section fades in with the promotion animation
+  // bgSwipeProgress (0→1) drives scale independently of translateX so that
+  // when translateX resets to 0 after a swipe, the background card eases back
+  // to rest via a spring instead of snapping — eliminating the visible pop.
+  const bgCardStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: interpolate(bgSwipeProgress.value, [0, 1], [1 - index * 0.04, 1 - (index - 1) * 0.04], 'clamp') },
+      { translateY: interpolate(bgSwipeProgress.value, [0, 1], [index * 10, (index - 1) * 10], 'clamp') },
+    ],
+    zIndex: 10 - index,
+  }));
+
   const infoStyle = useAnimatedStyle(() => ({
     opacity: promoteAnim.value,
   }));
@@ -134,7 +125,7 @@ export function SwipeCard({ movie, translateX, translateY, isTop, index }: Swipe
     .filter(Boolean) as string[];
 
   return (
-    <Animated.View style={[StyleSheet.absoluteFill, stackStyle]}>
+    <Animated.View style={[StyleSheet.absoluteFill, isTop ? topCardStyle : bgCardStyle]}>
       <View style={[
         styles.card,
         { backgroundColor: C.surface },

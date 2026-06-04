@@ -50,8 +50,6 @@ export default function SwipeScreen() {
   const page = useRef(1);
   const swipedIds = useRef<Set<number>>(new Set());
   const isFetching = useRef(false);
-  // Signals that translateX/Y must be reset after the next deck commit
-  const pendingResetRef = useRef(false);
   // Use a ref so loadMovies (useCallback with empty deps) always reads the current filters
   const filtersRef = useRef<FilterState>(INITIAL_FILTER);
   const [appliedFilters, setAppliedFiltersState] = useState<FilterState>(INITIAL_FILTER);
@@ -63,6 +61,13 @@ export default function SwipeScreen() {
 
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+  // topCardOpacity: set to 0 on the UI thread (withTiming callback) before translateX resets,
+  // so the departing card cannot flash back to center. Restored to 1 after deck commit.
+  const topCardOpacity = useSharedValue(1);
+  // bgSwipeProgress: drives background-card scale independently from translateX.
+  // Animated with a spring on swipe exit so background cards ease back to rest
+  // instead of snapping when translateX jumps from SCREEN_WIDTH*1.5 back to 0.
+  const bgSwipeProgress = useSharedValue(0);
 
   const isLikePressed = useSharedValue(0);
   const isNopePressed = useSharedValue(0);
@@ -155,15 +160,11 @@ export default function SwipeScreen() {
     if (!loading && deck.length <= STACK_SIZE + 6) loadMovies();
   }, [deck.length, loading, loadMovies]);
 
-  // ── Reset translate AFTER React has committed the deck change ──────────────
-  // useLayoutEffect fires after commit but before paint: the old card is already
-  // unmounted, so setting translateX=0 never flashes it back to center.
+  // ── Restore top card visibility after React commits the deck change ──────────
+  // translateX/Y are already reset on the UI thread (inside the withTiming callback),
+  // so we only need to make the new top card visible here.
   useLayoutEffect(() => {
-    if (pendingResetRef.current) {
-      pendingResetRef.current = false;
-      translateX.value = 0;
-      translateY.value = 0;
-    }
+    topCardOpacity.value = 1;
   }, [deck]);
 
   // ── Swipe action ───────────────────────────────────────────────────────────
@@ -174,7 +175,6 @@ export default function SwipeScreen() {
       swipedIds.current.add(movie.id);
       setDeck((prev) => prev.slice(1));
       saveSwipe(user.id, movie, action).catch(() => {});
-      pendingResetRef.current = true;
     },
     [deck, user],
   );
@@ -184,27 +184,53 @@ export default function SwipeScreen() {
     .onUpdate((e) => {
       translateX.value = e.translationX;
       translateY.value = e.translationY * 0.3;
+      bgSwipeProgress.value = Math.min(Math.abs(e.translationX) / 150, 1);
     })
     .onEnd((e) => {
       if (e.translationX > SWIPE_THRESHOLD) {
-        translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 280 }, () => {
-          runOnJS(handleSwipe)('like');
+        // Keep bgSwipeProgress in sync with the exit animation
+        bgSwipeProgress.value = withTiming(1, { duration: 280 });
+        translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 280 }, (finished) => {
+          if (finished) {
+            // UI thread — synchronous. Hide card then reset position.
+            topCardOpacity.value = 0;
+            translateX.value = 0;
+            translateY.value = 0;
+            // Spring bgSwipeProgress back to 0 so background cards ease to rest.
+            bgSwipeProgress.value = withSpring(0, { damping: 20, stiffness: 200 });
+            runOnJS(handleSwipe)('like');
+          }
         });
       } else if (e.translationX < -SWIPE_THRESHOLD) {
-        translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 280 }, () => {
-          runOnJS(handleSwipe)('dislike');
+        bgSwipeProgress.value = withTiming(1, { duration: 280 });
+        translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 280 }, (finished) => {
+          if (finished) {
+            topCardOpacity.value = 0;
+            translateX.value = 0;
+            translateY.value = 0;
+            bgSwipeProgress.value = withSpring(0, { damping: 20, stiffness: 200 });
+            runOnJS(handleSwipe)('dislike');
+          }
         });
       } else {
         translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
         translateY.value = withSpring(0, { damping: 20, stiffness: 200 });
+        bgSwipeProgress.value = withSpring(0, { damping: 20, stiffness: 200 });
       }
     });
 
   // ── Button press swipe ─────────────────────────────────────────────────────
   function pressSwipe(action: 'like' | 'dislike') {
     const direction = action === 'like' ? 1 : -1;
-    translateX.value = withTiming(direction * SCREEN_WIDTH * 1.5, { duration: 280 }, () => {
-      runOnJS(handleSwipe)(action);
+    bgSwipeProgress.value = withTiming(1, { duration: 280 });
+    translateX.value = withTiming(direction * SCREEN_WIDTH * 1.5, { duration: 280 }, (finished) => {
+      if (finished) {
+        topCardOpacity.value = 0;
+        translateX.value = 0;
+        translateY.value = 0;
+        bgSwipeProgress.value = withSpring(0, { damping: 20, stiffness: 200 });
+        runOnJS(handleSwipe)(action);
+      }
     });
   }
 
@@ -258,10 +284,10 @@ export default function SwipeScreen() {
             const isTop = idx === 0;
             return isTop ? (
               <GestureDetector key={movie.id} gesture={gesture}>
-                <SwipeCard movie={movie} translateX={translateX} translateY={translateY} isTop index={0} />
+                <SwipeCard movie={movie} translateX={translateX} translateY={translateY} topCardOpacity={topCardOpacity} bgSwipeProgress={bgSwipeProgress} isTop index={0} />
               </GestureDetector>
             ) : (
-              <SwipeCard key={movie.id} movie={movie} translateX={translateX} translateY={translateY} isTop={false} index={idx} />
+              <SwipeCard key={movie.id} movie={movie} translateX={translateX} translateY={translateY} topCardOpacity={topCardOpacity} bgSwipeProgress={bgSwipeProgress} isTop={false} index={idx} />
             );
           })}
       </View>

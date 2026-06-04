@@ -46,7 +46,16 @@
       "Bash(node -e \"const p = require\\('./package.json'\\); const deps = {...p.dependencies, ...p.devDependencies}; ['expo-font','@expo-google-fonts/sora','expo-linear-gradient','@expo/vector-icons'].forEach\\(k => console.log\\(k + ':', deps[k] || 'ABSENT'\\)\\);\")",
       "Bash(grep -v \"//\\\\|*\")",
       "Bash(dir .env*)",
-      "Bash(git commit -m 'polish: align swipe UI with Stitch mockup *)"
+      "Bash(git commit -m 'polish: align swipe UI with Stitch mockup *)",
+      "Bash(git commit -m 'feat: movie info bottom sheet \\(replaces navigation to movie/[id]\\) *)",
+      "Bash(git commit -m 'feat: skeleton loading screens — closes #37 *)",
+      "Bash(git commit -m 'fix: responsive validation — closes #23 *)",
+      "Bash(git commit -m 'fix: user feedback — matches refresh + swipe double flash + preload *)",
+      "Bash(git commit -m 'feat: light mode support — migrate hardcoded dark colors to theme tokens *)",
+      "Bash(git commit -m 'fix: smooth card promotion animation — no more glitch on next card *)",
+      "Bash(git commit -m 'fix: eliminate swipe card glitch with useLayoutEffect reset *)",
+      "Bash(git commit -m 'fix: skip already-swiped TMDB pages to avoid premature empty state *)",
+      "WebFetch(domain:docs.swmansion.com)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Wilfreid\\.claude\\projects\\c--Users-Wilfreid-Documents-GitHub-CineMatch\\memory"

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Dimensions,
   FlatList,
   Pressable,
@@ -25,6 +24,8 @@ import type { SwipeHistory } from '@/types/supabase';
 import { posterUrl } from '@/utils/format';
 import { SearchBar } from '@/components/SearchBar';
 import { MovieListItem } from '@/components/MovieListItem';
+import { MatchCardSkeleton } from '@/components/skeletons/MatchCardSkeleton';
+import { MovieCardSkeleton } from '@/components/skeletons/MovieCardSkeleton';
 
 const H_PAD = 20;
 const GAP = Spacing.lg;
@@ -226,9 +227,15 @@ export default function MatchesScreen() {
       {isSearchMode ? (
         // ── Search results ─────────────────────────────────────────────────
         showLoader ? (
-          <View style={styles.center}>
-            <ActivityIndicator color={C.primary} size="large" />
-          </View>
+          <ScrollView
+            style={styles.searchList}
+            contentContainerStyle={styles.searchContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {Array.from({ length: 5 }).map((_, i) => (
+              <MovieCardSkeleton key={i} />
+            ))}
+          </ScrollView>
         ) : showEmpty ? (
           <View style={styles.center}>
             <Ionicons name="film-outline" size={44} color={C.textDisabled} />
@@ -260,9 +267,13 @@ export default function MatchesScreen() {
       ) : (
         // ── Matches grid ───────────────────────────────────────────────────
         loadingMatches ? (
-          <View style={styles.center}>
-            <ActivityIndicator color={C.primary} size="large" />
-          </View>
+          <ScrollView
+            style={styles.gridScroll}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.grid}
+          >
+            <MatchCardSkeleton count={6} />
+          </ScrollView>
         ) : errorMatches ? (
           <View style={styles.center}>
             <Text style={[styles.feedbackText, { color: C.textMuted }]}>{errorMatches}</Text>

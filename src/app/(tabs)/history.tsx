@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   ScrollView,
@@ -20,6 +19,7 @@ import { getAllSwipes } from '@/services/swipe';
 import type { SwipeHistory } from '@/types/supabase';
 import { posterUrl } from '@/utils/format';
 import { GENRE_NAMES } from '@/components/SearchResultCard';
+import { HistoryItemSkeleton } from '@/components/skeletons/HistoryItemSkeleton';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -182,8 +182,8 @@ export default function HistoryScreen() {
 
       {/* Content */}
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={C.primary} size="large" />
+        <View style={{ paddingHorizontal: H_PAD, paddingTop: Spacing.md }}>
+          <HistoryItemSkeleton count={6} />
         </View>
       ) : error ? (
         <View style={styles.center}>

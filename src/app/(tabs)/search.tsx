@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -23,6 +23,7 @@ import {
   INITIAL_FILTER,
   type FilterState,
 } from '@/components/FilterSheet';
+import { SearchResultSkeleton } from '@/components/skeletons/SearchResultSkeleton';
 
 const H_PAD = 20;
 
@@ -117,9 +118,13 @@ export default function SearchScreen() {
 
       {/* ── Results area ─────────────────────────────────────────────────────── */}
       {showLoader ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={C.primary} size="large" />
-        </View>
+        <ScrollView
+          style={styles.list}
+          contentContainerStyle={{ paddingHorizontal: H_PAD, paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <SearchResultSkeleton count={5} />
+        </ScrollView>
       ) : showEmpty ? (
         <View style={styles.center}>
           <Ionicons name="film-outline" size={44} color={C.textDisabled} />
