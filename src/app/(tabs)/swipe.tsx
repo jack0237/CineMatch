@@ -139,7 +139,7 @@ export default function SwipeScreen() {
   }, [user, loadMovies]);
 
   useEffect(() => {
-    if (!loading && deck.length <= STACK_SIZE + 1) loadMovies();
+    if (!loading && deck.length <= STACK_SIZE + 6) loadMovies();
   }, [deck.length, loading, loadMovies]);
 
   // ── Swipe action ───────────────────────────────────────────────────────────
@@ -150,8 +150,12 @@ export default function SwipeScreen() {
       swipedIds.current.add(movie.id);
       setDeck((prev) => prev.slice(1));
       saveSwipe(user.id, movie, action).catch(() => {});
+      // Reset AFTER setDeck so the new top card renders with translateX=0,
+      // not the old card snapping back to center before being removed.
+      translateX.value = 0;
+      translateY.value = 0;
     },
-    [deck, user],
+    [deck, user, translateX, translateY],
   );
 
   // ── Pan gesture ────────────────────────────────────────────────────────────
@@ -163,14 +167,10 @@ export default function SwipeScreen() {
     .onEnd((e) => {
       if (e.translationX > SWIPE_THRESHOLD) {
         translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 280 }, () => {
-          translateX.value = 0;
-          translateY.value = 0;
           runOnJS(handleSwipe)('like');
         });
       } else if (e.translationX < -SWIPE_THRESHOLD) {
         translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 280 }, () => {
-          translateX.value = 0;
-          translateY.value = 0;
           runOnJS(handleSwipe)('dislike');
         });
       } else {
@@ -183,8 +183,6 @@ export default function SwipeScreen() {
   function pressSwipe(action: 'like' | 'dislike') {
     const direction = action === 'like' ? 1 : -1;
     translateX.value = withTiming(direction * SCREEN_WIDTH * 1.5, { duration: 280 }, () => {
-      translateX.value = 0;
-      translateY.value = 0;
       runOnJS(handleSwipe)(action);
     });
   }

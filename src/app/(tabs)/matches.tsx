@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useDebounce } from 'use-debounce';
 import { FontSize, Fonts, Radius, Spacing, Stitch } from '@/constants/theme';
@@ -110,12 +110,25 @@ export default function MatchesScreen() {
   const [loadingMatches, setLoadingMatches] = useState(true);
   const [errorMatches, setErrorMatches] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
+  // Skip the first focus (already handled by the useEffect below)
+  const firstFocusRef = useRef(true);
 
   // ── Search state ───────────────────────────────────────────────────────────
   const [query, setQuery] = useState('');
   const [debouncedQuery] = useDebounce(query, 400);
   const [searchResults, setSearchResults] = useState<Movie[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  // ── Auto-refresh when tab gains focus ─────────────────────────────────────
+  useFocusEffect(
+    useCallback(() => {
+      if (firstFocusRef.current) {
+        firstFocusRef.current = false;
+        return;
+      }
+      setRefreshKey(k => k + 1);
+    }, [])
+  );
 
   // ── Load liked movies ──────────────────────────────────────────────────────
   useEffect(() => {
