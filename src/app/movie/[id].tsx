@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   Dimensions,
   Linking,
   Pressable,
@@ -19,6 +18,7 @@ import { useColors } from '@/hooks/use-theme';
 import { getMovieCredits, getMovieDetails, getMovieVideos } from '@/services/tmdb';
 import type { CastMember, Movie, Video } from '@/types/tmdb';
 import { backdropUrl, formatRuntime, posterUrl, profileUrl } from '@/utils/format';
+import { MovieDetailSkeleton } from '@/components/skeletons';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const HERO_HEIGHT = Math.round(SCREEN_HEIGHT * 0.74);
@@ -57,16 +57,7 @@ export default function MovieDetailScreen() {
       .finally(() => setLoading(false));
   }, [movieId]);
 
-  if (loading) {
-    return (
-      <>
-        <Stack.Screen options={{ headerShown: false }} />
-        <View style={[styles.center, { backgroundColor: C.bg }]}>
-          <ActivityIndicator color={C.primary} size="large" />
-        </View>
-      </>
-    );
-  }
+  if (loading) return <MovieDetailSkeleton />;
 
   if (error || !movie) {
     return (

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Dimensions,
   Pressable,
   StyleSheet,
@@ -21,6 +20,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SwipeCard } from '@/components/SwipeCard';
 import { MovieInfoSheet } from '@/components/MovieInfoSheet';
+import { SwipeCardSkeleton } from '@/components/skeletons';
 import { FontSize, Radius, Spacing } from '@/constants/theme';
 import { useColors } from '@/hooks/use-theme';
 import { useAuth } from '@/hooks/useAuth';
@@ -190,14 +190,7 @@ export default function SwipeScreen() {
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.centered, { backgroundColor: C.bg }]}>
-        <ActivityIndicator size="large" color={C.primary} />
-        <Text style={[styles.loadingText, { color: C.textSecondary }]}>Chargement des films…</Text>
-      </SafeAreaView>
-    );
-  }
+  if (loading) return <SwipeCardSkeleton />;
 
   if (error) {
     return (
