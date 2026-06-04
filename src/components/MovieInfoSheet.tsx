@@ -179,7 +179,7 @@ export function MovieInfoSheet({ movie, onClose }: Props) {
               bounces>
 
               {/* Title */}
-              <Text style={styles.title}>{movie.title}</Text>
+              <Text style={styles.title} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.8}>{movie.title}</Text>
 
               {/* Meta row */}
               <View style={styles.metaRow}>

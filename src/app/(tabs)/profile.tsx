@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/Button';
@@ -75,6 +75,7 @@ function NavRow({
 export default function ProfileScreen() {
   const C = useColors();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
   const [stats, setStats] = useState<Stats>({ total: 0, liked: 0, disliked: 0 });
   const [loading, setLoading] = useState(true);
@@ -113,13 +114,24 @@ export default function ProfileScreen() {
       </View>
 
       {/* ── Content ──────────────────────────────────────────────────────────── */}
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: Math.max(insets.bottom + Spacing.lg, Spacing['2xl']) },
+        ]}
+        showsVerticalScrollIndicator={false}>
 
         {/* Avatar + identity */}
         <View style={[styles.avatar, { backgroundColor: C.primary }]}>
           <Text style={styles.avatarText}>{initials}</Text>
         </View>
-        <Text style={[styles.email, { color: C.textPrimary }]}>{user?.email}</Text>
+        <Text
+          style={[styles.email, { color: C.textPrimary }]}
+          numberOfLines={1}
+          ellipsizeMode="middle">
+          {user?.email}
+        </Text>
         <Text style={[styles.memberSince, { color: C.textMuted }]}>
           Membre depuis {new Date(user?.created_at ?? '').getFullYear()}
         </Text>
@@ -152,7 +164,7 @@ export default function ProfileScreen() {
           loading={signingOut}
           onPress={handleSignOut}
         />
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -161,6 +173,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
+  flex: { flex: 1 },
 
   // Header — same height as other screens
   header: {

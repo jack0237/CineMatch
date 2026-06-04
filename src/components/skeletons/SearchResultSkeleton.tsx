@@ -67,6 +67,5 @@ const styles = StyleSheet.create({
   ratingRow: {
     flexDirection: 'row',
     gap: 6,
-    marginTop: 'auto' as any,
   },
 });

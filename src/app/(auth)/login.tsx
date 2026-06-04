@@ -61,7 +61,7 @@ export default function LoginScreen() {
         />
         <View style={[s.brand, { paddingTop: insets.top }]}>
           <Text style={[s.brandTitle, { color: C.textPrimary }]}>CineMatch</Text>
-          <Text style={[s.brandTagline, { color: C.textSecondary }]}>Discover your next favorite film.</Text>
+          <Text style={[s.brandTagline, { color: C.textSecondary }]} numberOfLines={2}>Discover your next favorite film.</Text>
         </View>
       </ImageBackground>
 

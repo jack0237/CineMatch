@@ -210,8 +210,8 @@ export default function SwipeScreen() {
     return (
       <SafeAreaView style={[styles.centered, { backgroundColor: C.bg }]}>
         <Text style={styles.emptyEmoji}>🎬</Text>
-        <Text style={[styles.emptyTitle, { color: C.textPrimary }]}>Vous avez tout vu !</Text>
-        <Text style={[styles.emptySubtitle, { color: C.textSecondary }]}>Revenez demain pour de nouveaux films.</Text>
+        <Text style={[styles.emptyTitle, { color: C.textPrimary }]} numberOfLines={2}>Vous avez tout vu !</Text>
+        <Text style={[styles.emptySubtitle, { color: C.textSecondary }]} numberOfLines={3}>Revenez demain pour de nouveaux films.</Text>
       </SafeAreaView>
     );
   }
