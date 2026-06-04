@@ -107,17 +107,28 @@ export default function SwipeScreen() {
       const f = filtersRef.current;
       const eraRange = f.era ? ERA_DATE_RANGES[f.era] : {};
       const hasFilters = f.genres.length > 0 || f.minScore > 0 || f.era !== null;
-      const { results } = hasFilters
-        ? await discoverMovies({
-            page: page.current,
-            ...(f.genres.length > 0 ? { with_genres: f.genres.join(',') } : {}),
-            ...(f.minScore > 0 ? { 'vote_average.gte': String(f.minScore) } : {}),
-            ...eraRange,
-          })
-        : await getPopularMovies(page.current);
-      page.current += 1;
-      const fresh = results.filter((m) => !swipedIds.current.has(m.id));
-      setDeck((prev) => [...prev, ...fresh]);
+
+      // Skip pages where all films were already swiped (up to 5 consecutive pages)
+      let fresh: Movie[] = [];
+      let attempts = 0;
+      while (fresh.length === 0 && attempts < 5) {
+        const { results } = hasFilters
+          ? await discoverMovies({
+              page: page.current,
+              ...(f.genres.length > 0 ? { with_genres: f.genres.join(',') } : {}),
+              ...(f.minScore > 0 ? { 'vote_average.gte': String(f.minScore) } : {}),
+              ...eraRange,
+            })
+          : await getPopularMovies(page.current);
+        page.current += 1;
+        fresh = results.filter((m) => !swipedIds.current.has(m.id));
+        attempts += 1;
+        if (results.length === 0) break; // no more pages
+      }
+
+      if (fresh.length > 0) {
+        setDeck((prev) => [...prev, ...fresh]);
+      }
     } catch {
       setError('Impossible de charger les films. Vérifie ta connexion.');
     } finally {
