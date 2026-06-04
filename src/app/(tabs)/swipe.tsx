@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   Dimensions,
   Pressable,
@@ -50,6 +50,8 @@ export default function SwipeScreen() {
   const page = useRef(1);
   const swipedIds = useRef<Set<number>>(new Set());
   const isFetching = useRef(false);
+  // Signals that translateX/Y must be reset after the next deck commit
+  const pendingResetRef = useRef(false);
   // Use a ref so loadMovies (useCallback with empty deps) always reads the current filters
   const filtersRef = useRef<FilterState>(INITIAL_FILTER);
   const [appliedFilters, setAppliedFiltersState] = useState<FilterState>(INITIAL_FILTER);
@@ -142,6 +144,17 @@ export default function SwipeScreen() {
     if (!loading && deck.length <= STACK_SIZE + 6) loadMovies();
   }, [deck.length, loading, loadMovies]);
 
+  // ── Reset translate AFTER React has committed the deck change ──────────────
+  // useLayoutEffect fires after commit but before paint: the old card is already
+  // unmounted, so setting translateX=0 never flashes it back to center.
+  useLayoutEffect(() => {
+    if (pendingResetRef.current) {
+      pendingResetRef.current = false;
+      translateX.value = 0;
+      translateY.value = 0;
+    }
+  }, [deck]);
+
   // ── Swipe action ───────────────────────────────────────────────────────────
   const handleSwipe = useCallback(
     (action: 'like' | 'dislike') => {
@@ -150,12 +163,9 @@ export default function SwipeScreen() {
       swipedIds.current.add(movie.id);
       setDeck((prev) => prev.slice(1));
       saveSwipe(user.id, movie, action).catch(() => {});
-      // Reset AFTER setDeck so the new top card renders with translateX=0,
-      // not the old card snapping back to center before being removed.
-      translateX.value = 0;
-      translateY.value = 0;
+      pendingResetRef.current = true;
     },
-    [deck, user, translateX, translateY],
+    [deck, user],
   );
 
   // ── Pan gesture ────────────────────────────────────────────────────────────
