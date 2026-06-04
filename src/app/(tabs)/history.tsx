@@ -52,6 +52,7 @@ function HistoryItem({
   item: SwipeHistory;
   onPress: () => void;
 }) {
+  const C = useColors();
   const isLiked = item.action === 'like';
   const uri = posterUrl(item.movie_poster_path, 'w342') ?? undefined;
   const genre = item.movie_genre_ids[0] ? GENRE_NAMES[item.movie_genre_ids[0]] : null;
@@ -59,7 +60,11 @@ function HistoryItem({
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      style={({ pressed }) => [
+        styles.card,
+        { backgroundColor: C.surfaceElevated, borderColor: C.border },
+        pressed && { backgroundColor: C.chip },
+      ]}
     >
       <View style={[styles.posterWrap, !isLiked && styles.posterWrapPassed]}>
         <Image source={uri} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
@@ -75,16 +80,16 @@ function HistoryItem({
         <Text
           style={[
             styles.title,
-            { color: isLiked ? Stitch.onBackground : `${Stitch.onBackground}B3` },
+            { color: isLiked ? C.textPrimary : C.textSecondary },
           ]}
           numberOfLines={1}
         >
           {item.movie_title}
         </Text>
         <View style={styles.metaRow}>
-          {genre && <Text style={styles.metaText}>{genre.toUpperCase()}</Text>}
-          {genre && <View style={styles.metaDot} />}
-          <Text style={styles.metaText}>{formatDate(item.swiped_at)}</Text>
+          {genre && <Text style={[styles.metaText, { color: C.textMuted }]}>{genre.toUpperCase()}</Text>}
+          {genre && <View style={[styles.metaDot, { backgroundColor: C.textDisabled }]} />}
+          <Text style={[styles.metaText, { color: C.textMuted }]}>{formatDate(item.swiped_at)}</Text>
         </View>
       </View>
 
@@ -92,9 +97,7 @@ function HistoryItem({
         style={[
           styles.badge,
           {
-            backgroundColor: isLiked
-              ? 'rgba(0,165,114,0.2)'
-              : 'rgba(147,0,10,0.2)',
+            backgroundColor: isLiked ? C.likeDim : C.nopeDim,
           },
         ]}
       >
@@ -140,7 +143,7 @@ export default function HistoryScreen() {
     <SafeAreaView style={[styles.root, { backgroundColor: C.bg }]} edges={['top']}>
 
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: C.surface, borderBottomColor: C.border }]}>
         <Pressable onPress={() => router.back()} hitSlop={10} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={26} color={Stitch.onSurfaceVariant} />
         </Pressable>
@@ -164,8 +167,8 @@ export default function HistoryScreen() {
               style={[
                 styles.chip,
                 {
-                  backgroundColor: active ? `${C.primary}1A` : 'rgba(255,255,255,0.03)',
-                  borderColor: 'rgba(255,255,255,0.08)',
+                  backgroundColor: active ? `${C.primary}1A` : C.surfaceElevated,
+                  borderColor: C.border,
                 },
               ]}
             >
@@ -229,9 +232,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: H_PAD,
-    backgroundColor: 'rgba(19,19,19,0.8)',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
   backBtn: { width: 40, alignItems: 'flex-start', justifyContent: 'center', padding: 4, marginLeft: -4 },
   headerTitle: { fontFamily: Fonts.bold, fontSize: 28, lineHeight: 36, letterSpacing: -0.3, flex: 1, textAlign: 'center' },
@@ -241,16 +242,16 @@ const styles = StyleSheet.create({
   chipLabel: { fontFamily: Fonts.semibold, fontSize: FontSize.sm, letterSpacing: 0.7 },
   list: { flex: 1 },
   listContent: { paddingHorizontal: H_PAD, paddingBottom: 40, gap: 16 },
-  card: { flexDirection: 'row', alignItems: 'center', gap: Spacing.lg, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 24, padding: 12 },
-  cardPressed: { backgroundColor: 'rgba(255,255,255,0.07)' },
+  card: { flexDirection: 'row', alignItems: 'center', gap: Spacing.lg, borderWidth: 1, borderRadius: 24, padding: 12 },
+  cardPressed: {},
   posterWrap: { width: 64, height: 96, flexShrink: 0, borderRadius: 8, overflow: 'hidden', backgroundColor: Stitch.surfaceContainerHigh },
   posterWrapPassed: { opacity: 0.7 },
   posterGreyOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(150,150,150,0.25)' },
   details: { flex: 1, minWidth: 0, gap: 6 },
   title: { fontFamily: Fonts.semibold, fontSize: FontSize.xl, lineHeight: 28 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  metaText: { fontFamily: Fonts.light, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: Stitch.onSurfaceVariant },
-  metaDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: `${Stitch.onSurfaceVariant}4D` },
+  metaText: { fontFamily: Fonts.light, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase' },
+  metaDot: { width: 4, height: 4, borderRadius: 2 },
   badge: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.sm, paddingHorizontal: H_PAD },
   emptyTitle: { fontFamily: Fonts.bold, fontSize: FontSize.lg, textAlign: 'center' },

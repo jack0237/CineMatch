@@ -95,7 +95,7 @@ export default function SearchScreen() {
     <SafeAreaView style={[styles.root, { backgroundColor: C.bg }]} edges={['top']}>
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
-      <View style={[styles.header, { borderBottomColor: 'rgba(255,255,255,0.08)' }]}>
+      <View style={[styles.header, { borderBottomColor: C.border }]}>
         <Text style={[styles.headerTitle, { color: C.primary }]}>CineMatch</Text>
         <Pressable onPress={() => setFilterVisible(true)} hitSlop={8} style={styles.filterBtn}>
           <Ionicons name="options-outline" size={22} color={C.primary} />

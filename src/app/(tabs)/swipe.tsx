@@ -71,8 +71,8 @@ export default function SwipeScreen() {
     const progress = Math.max(swipeProgress, isLikePressed.value);
     return {
       transform: [{ scale: interpolate(progress, [0, 1], [1, 1.15]) }],
-      backgroundColor: interpolateColor(progress, [0, 1], ['rgba(42,42,42,0.5)', C.likeDim]),
-      borderColor: interpolateColor(progress, [0, 1], ['rgba(255,255,255,0.1)', C.like]),
+      backgroundColor: interpolateColor(progress, [0, 1], [C.surfaceElevated, C.likeDim]),
+      borderColor: interpolateColor(progress, [0, 1], [C.border, C.like]),
     };
   });
 
@@ -87,8 +87,8 @@ export default function SwipeScreen() {
     const progress = Math.max(swipeProgress, isNopePressed.value);
     return {
       transform: [{ scale: interpolate(progress, [0, 1], [1, 1.15]) }],
-      backgroundColor: interpolateColor(progress, [0, 1], ['rgba(42,42,42,0.5)', C.nopeDim]),
-      borderColor: interpolateColor(progress, [0, 1], ['rgba(255,255,255,0.1)', C.nope]),
+      backgroundColor: interpolateColor(progress, [0, 1], [C.surfaceElevated, C.nopeDim]),
+      borderColor: interpolateColor(progress, [0, 1], [C.border, C.nope]),
     };
   });
 
@@ -276,7 +276,7 @@ export default function SwipeScreen() {
 
         {/* Info */}
         <Pressable
-          style={styles.actionBtnInfo}
+          style={[styles.actionBtnInfo, { backgroundColor: C.surfaceElevated, borderColor: C.border }]}
           onPress={() => {
             const movie = deck[0];
             if (deck[0]) setSheetMovie(deck[0]);
@@ -365,8 +365,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    backgroundColor: 'rgba(32,31,31,0.5)',
-    borderColor: 'rgba(255,255,255,0.06)',
   },
   iconOverlay: {
     alignItems: 'center',

@@ -119,8 +119,8 @@ export default function MovieDetailScreen() {
               </Text>
               <View style={styles.metaRow}>
                 {genres.slice(0, 2).map(g => (
-                  <View key={g.id} style={styles.genreChip}>
-                    <Text style={styles.genreLabel}>{g.name}</Text>
+                  <View key={g.id} style={[styles.genreChip, { backgroundColor: C.chip, borderColor: C.border }]}>
+                    <Text style={[styles.genreLabel, { color: C.textSecondary }]}>{g.name}</Text>
                   </View>
                 ))}
                 {genres.length > 0 && !!movie.runtime && (
@@ -139,8 +139,8 @@ export default function MovieDetailScreen() {
           <View style={styles.body}>
             {/* Synopsis */}
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>SYNOPSIS</Text>
-              <Text style={[styles.synopsis, { color: Stitch.onSurface }]}>
+              <Text style={[styles.sectionLabel, { color: C.textMuted }]}>SYNOPSIS</Text>
+              <Text style={[styles.synopsis, { color: C.textSecondary }]}>
                 {movie.overview || 'Aucun synopsis disponible.'}
               </Text>
             </View>
@@ -149,7 +149,7 @@ export default function MovieDetailScreen() {
             {cast.length > 0 && (
               <View style={styles.section}>
                 <View style={styles.castHeader}>
-                  <Text style={styles.sectionLabel}>CAST</Text>
+                  <Text style={[styles.sectionLabel, { color: C.textMuted }]}>CAST</Text>
                   <Text style={[styles.seeAll, { color: C.primary }]}>Voir tout</Text>
                 </View>
                 <ScrollView
@@ -279,9 +279,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   genreChip: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
     paddingHorizontal: Spacing.lg,
     paddingVertical: 5,
     borderRadius: Radius.pill,
@@ -291,7 +289,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
-    color: Stitch.onSurfaceVariant,
   },
   metaDot: {
     width: 6,
@@ -317,7 +314,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingBottom: 10,
-    backgroundColor: 'rgba(19,19,19,0.08)',
+    backgroundColor: 'transparent',
   },
   headerBtn: { width: 36, alignItems: 'center' },
   headerTitle: {
@@ -336,7 +333,6 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.semibold,
     fontSize: FontSize.sm,
     letterSpacing: 2.5,
-    color: `${Stitch.onSurfaceVariant}88`,
   },
   synopsis: {
     fontFamily: Fonts.regular,

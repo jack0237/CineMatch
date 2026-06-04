@@ -221,13 +221,13 @@ export function FilterSheet({
           {
             backgroundColor: C.surfaceElevated,
             paddingBottom: insets.bottom + Spacing.lg,
-            borderColor: 'rgba(255,255,255,0.1)',
+            borderColor: C.border,
           },
           sheetStyle,
         ]}
       >
         {/* Drag handle */}
-        <View style={styles.handle} />
+        <View style={[styles.handle, { backgroundColor: C.borderLight }]} />
 
         {/* Header */}
         <View style={styles.sheetHeader}>
@@ -255,12 +255,8 @@ export function FilterSheet({
                     style={({ pressed }) => [
                       styles.genreChip,
                       {
-                        backgroundColor: active
-                          ? C.primary
-                          : 'rgba(255,255,255,0.05)',
-                        borderColor: active
-                          ? C.primary
-                          : 'rgba(255,255,255,0.1)',
+                        backgroundColor: active ? C.primary : C.chip,
+                        borderColor: active ? C.primary : C.border,
                         shadowColor: active ? C.primary : 'transparent',
                         transform: [{ scale: pressed ? 0.93 : 1 }],
                       },
@@ -312,12 +308,8 @@ export function FilterSheet({
                     style={({ pressed }) => [
                       styles.eraChip,
                       {
-                        backgroundColor: active
-                          ? C.primary
-                          : 'rgba(255,255,255,0.05)',
-                        borderColor: active
-                          ? C.primary
-                          : 'rgba(255,255,255,0.1)',
+                        backgroundColor: active ? C.primary : C.chip,
+                        borderColor: active ? C.primary : C.border,
                         shadowColor: active ? C.primary : 'transparent',
                         transform: [{ scale: pressed ? 0.95 : 1 }],
                       },
@@ -340,16 +332,14 @@ export function FilterSheet({
         </ScrollView>
 
         {/* Footer */}
-        <View style={[styles.footer, { borderTopColor: 'rgba(255,255,255,0.1)' }]}>
+        <View style={[styles.footer, { borderTopColor: C.border }]}>
           <Pressable
             onPress={handleReset}
             style={({ pressed }) => [
               styles.footerBtn,
               {
-                backgroundColor: pressed
-                  ? 'rgba(255,255,255,0.08)'
-                  : 'rgba(255,255,255,0.05)',
-                borderColor: 'rgba(255,255,255,0.1)',
+                backgroundColor: pressed ? C.chip : C.surfaceElevated,
+                borderColor: C.border,
                 flex: 1,
               },
             ]}
@@ -408,7 +398,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 6,
     borderRadius: 3,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'transparent',
     alignSelf: 'center',
     marginBottom: Spacing.xl,
   },

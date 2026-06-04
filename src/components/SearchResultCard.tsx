@@ -3,6 +3,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Fonts, FontSize, Radius, Spacing, Stitch } from '@/constants/theme';
+import { useColors } from '@/hooks/use-theme';
 import type { Movie } from '@/types/tmdb';
 import { posterUrl } from '@/utils/format';
 
@@ -26,6 +27,7 @@ interface SearchResultCardProps {
 }
 
 export function SearchResultCard({ movie, onPress }: SearchResultCardProps) {
+  const C = useColors();
   const uri = posterUrl(movie.poster_path, 'w342') ?? undefined;
   const genres = movie.genre_ids
     .slice(0, 2)
@@ -35,10 +37,14 @@ export function SearchResultCard({ movie, onPress }: SearchResultCardProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      style={({ pressed }) => [
+        styles.card,
+        { backgroundColor: C.surface, borderColor: C.border },
+        pressed && { backgroundColor: C.surfaceElevated, borderColor: C.borderLight },
+      ]}
     >
       {/* Poster */}
-      <View style={styles.posterWrap}>
+      <View style={[styles.posterWrap, { backgroundColor: C.chip }]}>
         <Image
           source={uri}
           style={StyleSheet.absoluteFill}
@@ -54,25 +60,25 @@ export function SearchResultCard({ movie, onPress }: SearchResultCardProps) {
 
       {/* Metadata */}
       <View style={styles.meta}>
-        <Text style={styles.title} numberOfLines={1}>
+        <Text style={[styles.title, { color: C.textPrimary }]} numberOfLines={1}>
           {movie.title}
         </Text>
 
         {genres.length > 0 && (
           <View style={styles.genreRow}>
             {genres.map(name => (
-              <View key={name} style={styles.genreChip}>
-                <Text style={styles.genreLabel}>{name}</Text>
+              <View key={name} style={[styles.genreChip, { backgroundColor: C.chip, borderColor: C.border }]}>
+                <Text style={[styles.genreLabel, { color: C.textSecondary }]}>{name}</Text>
               </View>
             ))}
           </View>
         )}
 
         <View style={styles.ratingRow}>
-          <Ionicons name="star" size={16} color={Stitch.secondary} />
-          <Text style={styles.ratingValue}>{movie.vote_average.toFixed(1)}</Text>
+          <Ionicons name="star" size={16} color={C.like} />
+          <Text style={[styles.ratingValue, { color: C.textPrimary }]}>{movie.vote_average.toFixed(1)}</Text>
           {movie.vote_count > 0 && (
-            <Text style={styles.voteCount}>
+            <Text style={[styles.voteCount, { color: C.textMuted }]}>
               {formatVoteCount(movie.vote_count)}
             </Text>
           )}
@@ -86,16 +92,11 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     gap: Spacing.lg,
-    backgroundColor: 'rgba(28,27,27,0.3)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    borderRadius: Radius.lg + 4, // ~12px
+    borderRadius: Radius.lg + 4,
     padding: Spacing.sm,
   },
-  cardPressed: {
-    backgroundColor: 'rgba(28,27,27,0.6)',
-    borderColor: 'rgba(255,255,255,0.15)',
-  },
+  cardPressed: {},
 
   // Poster
   posterWrap: {
@@ -104,7 +105,6 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     borderRadius: Radius.lg,
     overflow: 'hidden',
-    backgroundColor: Stitch.surfaceContainerHigh,
   },
 
   // Metadata
@@ -127,9 +127,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   genreChip: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: Radius.pill,
@@ -139,7 +137,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
-    color: Stitch.onSurfaceVariant,
   },
   ratingRow: {
     flexDirection: 'row',
@@ -150,12 +147,10 @@ const styles = StyleSheet.create({
   ratingValue: {
     fontFamily: Fonts.semibold,
     fontSize: FontSize.sm,
-    color: Stitch.onSurface,
   },
   voteCount: {
     fontFamily: Fonts.light,
     fontSize: 12,
     letterSpacing: 0.5,
-    color: `${Stitch.onSurfaceVariant}88`,
   },
 });

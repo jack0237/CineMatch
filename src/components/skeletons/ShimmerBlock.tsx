@@ -8,10 +8,10 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
+import { useColors } from '@/hooks/use-theme';
 
 const SHIMMER_W = 180;
 const DURATION = 1300;
-const BASE = '#1e1d1d';
 
 interface Props {
   height: number;
@@ -20,6 +20,7 @@ interface Props {
 }
 
 export function ShimmerBlock({ height, borderRadius = 8, style }: Props) {
+  const C = useColors();
   const [containerW, setContainerW] = useState(0);
   const offset = useSharedValue(-SHIMMER_W);
 
@@ -39,7 +40,7 @@ export function ShimmerBlock({ height, borderRadius = 8, style }: Props) {
 
   return (
     <View
-      style={[{ height, borderRadius, backgroundColor: BASE, overflow: 'hidden' }, style]}
+      style={[{ height, borderRadius, backgroundColor: C.surfaceElevated, overflow: 'hidden' }, style]}
       onLayout={(e) => setContainerW(e.nativeEvent.layout.width)}
     >
       {containerW > 0 && (
