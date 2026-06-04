@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -5,6 +6,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   interpolate,
   useAnimatedStyle,
+  useSharedValue,
+  withSpring,
   type SharedValue,
 } from 'react-native-reanimated';
 import { FontSize, Radius, Spacing } from '@/constants/theme';
@@ -13,6 +16,10 @@ import type { Movie } from '@/types/tmdb';
 import { formatRating, formatYear, posterUrl } from '@/utils/format';
 
 const CARD_BORDER_RADIUS = 24;
+
+// Scale and offset that a card at index=1 (the "next" card) has at rest
+const BG_SCALE = 1 - 1 * 0.04; // 0.96
+const BG_TY = 1 * 10;           // 10px
 
 const GENRE_NAMES: Record<number, string> = {
   28: 'Action', 12: 'Aventure', 16: 'Animation', 35: 'Comédie',
@@ -68,13 +75,31 @@ export function SwipeCard({ movie, translateX, translateY, isTop, index }: Swipe
   const year = formatYear(movie.release_date);
   const rating = formatRating(movie.vote_average);
 
+  // Animate the promotion from background card to top card.
+  // Starts at 1 if already top (first render), 0 if background — animates to 1 on promotion.
+  const promoteAnim = useSharedValue(isTop ? 1 : 0);
+  const wasTopRef = useRef(isTop);
+
+  useEffect(() => {
+    if (isTop && !wasTopRef.current) {
+      promoteAnim.value = withSpring(1, { damping: 16, stiffness: 180 });
+    } else if (!isTop) {
+      promoteAnim.value = 0;
+    }
+    wasTopRef.current = isTop;
+  }, [isTop]);
+
   const stackStyle = useAnimatedStyle(() => {
     if (isTop) {
       const rotate = interpolate(translateX.value, [-200, 0, 200], [-15, 0, 15], 'clamp');
+      // Interpolate scale and vertical offset from background → top during promotion
+      const scale = interpolate(promoteAnim.value, [0, 1], [BG_SCALE, 1], 'clamp');
+      const ty = interpolate(promoteAnim.value, [0, 1], [BG_TY, translateY.value], 'clamp');
       return {
         transform: [
           { translateX: translateX.value },
-          { translateY: translateY.value },
+          { translateY: ty },
+          { scale },
           { rotate: `${rotate}deg` },
         ],
         zIndex: 10,
@@ -98,6 +123,11 @@ export function SwipeCard({ movie, translateX, translateY, isTop, index }: Swipe
     };
   });
 
+  // Info section fades in with the promotion animation
+  const infoStyle = useAnimatedStyle(() => ({
+    opacity: promoteAnim.value,
+  }));
+
   const genreNames = (movie.genre_ids ?? [])
     .slice(0, 2)
     .map((id) => GENRE_NAMES[id])
@@ -118,23 +148,22 @@ export function SwipeCard({ movie, translateX, translateY, isTop, index }: Swipe
           transition={200}
         />
 
-        {/* Rating badge — top right (Stitch: filled green star) */}
+        {/* Rating badge */}
         <View style={styles.ratingBadge}>
           <Ionicons name="star" size={12} color={C.like} />
           <Text style={styles.ratingValue}>{rating}</Text>
         </View>
 
-        {/* Gradient overlay — taller to accommodate info */}
+        {/* Gradient overlay */}
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.92)']}
           locations={[0.35, 0.65, 1]}
           style={styles.gradient}
         />
 
-        {/* Movie info — inside card, overlaid on gradient (Stitch layout) */}
+        {/* Movie info — fades in with promotion animation */}
         {isTop && (
-          <View style={styles.info}>
-            {/* Genre chips */}
+          <Animated.View style={[styles.info, infoStyle]}>
             {genreNames.length > 0 && (
               <View style={styles.chips}>
                 {genreNames.map((name) => (
@@ -149,7 +178,7 @@ export function SwipeCard({ movie, translateX, translateY, isTop, index }: Swipe
             {movie.overview ? (
               <Text style={styles.overview} numberOfLines={2}>{movie.overview}</Text>
             ) : null}
-          </View>
+          </Animated.View>
         )}
 
         {/* MATCH / NOPE overlays */}
@@ -165,11 +194,9 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: CARD_BORDER_RADIUS,
     overflow: 'hidden',
-    // inner-glow (Stitch)
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
   },
-  // focus-glow — purple outer glow on top card (Stitch)
   cardTopGlow: {
     shadowColor: '#d0bcff',
     shadowOffset: { width: 0, height: 0 },
@@ -181,7 +208,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
   },
 
-  // Rating badge — top right (Stitch: black/60 + green star + white bold text)
   ratingBadge: {
     position: 'absolute',
     top: Spacing.md,
@@ -203,7 +229,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  // Gradient — taller to cover info area
   gradient: {
     position: 'absolute',
     bottom: 0,
@@ -212,7 +237,6 @@ const styles = StyleSheet.create({
     height: '65%',
   },
 
-  // Movie info — inside card at bottom (Stitch: absolute bottom-6 left-6 right-6 z-10)
   info: {
     position: 'absolute',
     bottom: 24,
@@ -262,7 +286,6 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
 
-  // Overlays — Stitch "MATCH!" style
   overlayLike: {
     alignItems: 'flex-start',
     justifyContent: 'center',
